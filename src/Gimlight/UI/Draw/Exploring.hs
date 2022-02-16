@@ -28,13 +28,13 @@ import           Gimlight.Dungeon.Map.Cell       (exploredMap, lower,
 import           Gimlight.Dungeon.Map.Tile       (getImage)
 import           Gimlight.GameConfig             (GameConfig)
 import           Gimlight.GameModel              (GameModel (GameModel, config, status))
-import           Gimlight.GameStatus             (GameStatus (Exploring, Talking))
+import           Gimlight.GameStatus             (GameStatus (Exploring, Scene, Talking))
 import           Gimlight.GameStatus.Exploring   (ExploringHandler,
                                                   getCurrentDungeon,
                                                   getMessageLog, getPlayerActor,
                                                   getTileCollection)
-import           Gimlight.GameStatus.Talking     (emptyHandler,
-                                                  getExploringHandler)
+import qualified Gimlight.GameStatus.Scene       as Scene
+import qualified Gimlight.GameStatus.Talking     as Talking
 import qualified Gimlight.Item                   as I
 import           Gimlight.Localization           (getLocalizedText)
 import qualified Gimlight.Localization.Texts     as T
@@ -42,6 +42,7 @@ import           Gimlight.UI.Draw.Config         (logRows, tileColumns,
                                                   tileHeight, tileRows,
                                                   tileWidth, windowWidth)
 import           Gimlight.UI.Draw.KeyEvent       (withKeyEvents)
+import           Gimlight.UI.Draw.Scene          (drawScene)
 import           Gimlight.UI.Draw.Talking        (drawTalking)
 import           Gimlight.UI.Types               (GameWidgetNode)
 import           Linear.V2                       (V2 (V2), _x, _y)
@@ -60,14 +61,31 @@ import           TextShow                        (TextShow (showt))
 
 drawExploring :: GameModel -> GameWidgetNode
 drawExploring GameModel {status = s, config = c} =
-    withKeyEvents $ zstack [ex, drawTalking tl c `nodeVisible` isTalking]
+    withKeyEvents $
+    zstack
+        [ ex
+        , drawTalking talking c `nodeVisible` isTalking
+        , drawScene scene c `nodeVisible` isScene
+        ]
   where
     ex = vstack [statusAndMapGrid, messageLogArea eh c]
-    (eh, tl, isTalking) =
+    (isTalking, isScene) =
         case s of
-            Exploring e -> (e, emptyHandler e, False)
-            Talking th  -> (getExploringHandler th, th, True)
-            _           -> undefined
+            Talking _ -> (True, False)
+            Scene _   -> (False, True)
+            _         -> (False, False)
+    (talking, scene) =
+        case s of
+            Exploring _ -> (Talking.emptyHandler eh, Scene.emptyHandler eh)
+            Talking th  -> (th, Scene.emptyHandler eh)
+            Scene sh    -> (Talking.emptyHandler eh, sh)
+            _           -> error "Unable to generate handlers."
+    eh =
+        case s of
+            Exploring e -> e
+            Talking th  -> Talking.getExploringHandler th
+            Scene sh    -> Scene.getExploringHandler sh
+            _           -> error "Unable to get the exploring handler."
     statusAndMapGrid =
         hstack
             [ mapGrid eh

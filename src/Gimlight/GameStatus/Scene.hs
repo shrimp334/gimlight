@@ -1,21 +1,24 @@
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE TemplateHaskell    #-}
 
 module Gimlight.GameStatus.Scene
     ( SceneHandler
     , sceneHandler
+    , emptyHandler
     , withoutSpeaker
     , text
     , getBackgroundImagePath
     , getCurrentScene
+    , getExploringHandler
     , nextSceneOrFinish
     ) where
 
 import           Control.Lens                  (makeLenses, view, (&), (.~),
                                                 (^.))
 import           Data.Binary                   (Binary)
-import           Data.List.NonEmpty            (NonEmpty)
+import           Data.List.NonEmpty            (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty            as N
 import           Data.Text                     (Text)
 import           GHC.Generics                  (Generic)
@@ -40,6 +43,10 @@ makeLenses ''SceneHandler
 
 instance Binary SceneHandler
 
+emptyHandler :: ExploringHandler -> SceneHandler
+emptyHandler =
+    SceneHandler "images/game_opening.png" (withoutSpeaker mempty :| [])
+
 withoutSpeaker :: MultilingualText -> SceneElement
 withoutSpeaker = WithoutSpeaker
 
@@ -51,6 +58,9 @@ getBackgroundImagePath = view backgroundImage
 
 getCurrentScene :: SceneHandler -> SceneElement
 getCurrentScene = N.head . view elements
+
+getExploringHandler :: SceneHandler -> ExploringHandler
+getExploringHandler = view afterScene
 
 sceneHandler ::
        Text -> NonEmpty SceneElement -> ExploringHandler -> SceneHandler
