@@ -54,15 +54,13 @@ import           Monomer                         (CmbBgColor (bgColor),
                                                   CmbWidth (width), Size (Size),
                                                   black, filler, hstack, image,
                                                   imageMem, label, label_,
-                                                  nodeKey, nodeVisible, vstack,
-                                                  zstack)
+                                                  nodeVisible, vstack, zstack)
 import qualified Monomer.Lens                    as L
 import           TextShow                        (TextShow (showt))
 
 drawExploring :: GameModel -> GameWidgetNode
 drawExploring GameModel {status = s, config = c} =
-    withKeyEvents $
-    zstack [ex, drawTalking tl c `nodeVisible` isTalking `nodeKey` "talking"]
+    withKeyEvents $ zstack [ex, drawTalking tl c `nodeVisible` isTalking]
   where
     ex = vstack [statusAndMapGrid, messageLogArea eh c]
     (eh, tl, isTalking) =
