@@ -1,4 +1,5 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Gimlight.GameStatus.Talking.Part
     ( TalkingPart(..)
@@ -17,11 +18,12 @@ module Gimlight.GameStatus.Talking.Part
     ) where
 
 import           Data.Binary           (Binary)
-import           Data.List.NonEmpty    (NonEmpty, toList)
+import           Data.Default          (Default (def))
+import           Data.List.NonEmpty    (NonEmpty, fromList, toList)
 import qualified Data.List.NonEmpty    as NonEmpty
 import           GHC.Generics          (Generic)
 import           Gimlight.Data.Maybe   (expectJust)
-import           Gimlight.Localization (MultilingualText)
+import           Gimlight.Localization (MultilingualText, multilingualText)
 import           Gimlight.Quest        (Inquiry, QuestCollection, Updater)
 import qualified Gimlight.Quest        as Quest
 
@@ -61,6 +63,15 @@ data TalkingPart
     deriving (Show, Ord, Eq, Generic)
 
 instance Binary TalkingPart
+
+instance Default TalkingPart where
+    def =
+        Selection $
+        SelectionHandler
+            { question = multilingualText "" ""
+            , choicesAndNexts = fromList [(multilingualText "" "", Nothing)]
+            , selectingIndex = 0
+            }
 
 selectionHandler ::
        MultilingualText

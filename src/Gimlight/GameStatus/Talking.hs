@@ -2,6 +2,7 @@
 
 module Gimlight.GameStatus.Talking
     ( TalkingHandler
+    , emptyHandler
     , talkingHandler
     , getTalkingPartner
     , getTalkingPart
@@ -12,6 +13,7 @@ module Gimlight.GameStatus.Talking
     ) where
 
 import           Data.Binary                      (Binary)
+import           Data.Default                     (Default (def))
 import           GHC.Generics                     (Generic)
 import           Gimlight.Actor                   (Actor)
 import           Gimlight.GameStatus.Exploring    (ExploringHandler, getQuests,
@@ -29,6 +31,9 @@ data TalkingHandler =
     deriving (Show, Ord, Eq, Generic)
 
 instance Binary TalkingHandler
+
+emptyHandler :: ExploringHandler -> TalkingHandler
+emptyHandler = talkingHandler def def
 
 talkingHandler :: Actor -> TalkingPart -> ExploringHandler -> TalkingHandler
 talkingHandler a p h = TalkingHandler a updatedPart updatedHandler

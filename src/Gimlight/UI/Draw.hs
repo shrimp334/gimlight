@@ -10,16 +10,15 @@ import           Gimlight.UI.Draw.ReadingBook     (drawReadingBook)
 import           Gimlight.UI.Draw.Scene           (drawScene)
 import           Gimlight.UI.Draw.SelectingItem   (drawSelectingItem)
 import           Gimlight.UI.Draw.SelectingLocale (drawSelectingLocale)
-import           Gimlight.UI.Draw.Talking         (drawTalking)
 import           Gimlight.UI.Draw.Title           (drawTitle)
 import           Gimlight.UI.Types                (GameWidgetEnv,
                                                    GameWidgetNode)
 
 drawUI :: GameWidgetEnv -> GameModel -> GameWidgetNode
-drawUI _ GameModel {status = s, config = c} =
+drawUI _ g@GameModel {status = s, config = c} =
     case s of
-        Exploring eh    -> drawExploring eh c
-        Talking th      -> drawTalking th c
+        Exploring _     -> drawExploring g
+        Talking _       -> drawExploring g
         Scene hs        -> drawScene hs c
         SelectingItem h -> drawSelectingItem h c
         ReadingBook h   -> drawReadingBook h c

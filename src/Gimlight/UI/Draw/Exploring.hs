@@ -27,10 +27,14 @@ import           Gimlight.Dungeon.Map.Cell       (exploredMap, lower,
                                                   widthAndHeight)
 import           Gimlight.Dungeon.Map.Tile       (getImage)
 import           Gimlight.GameConfig             (GameConfig)
+import           Gimlight.GameModel              (GameModel (GameModel, config, status))
+import           Gimlight.GameStatus             (GameStatus (Exploring, Talking))
 import           Gimlight.GameStatus.Exploring   (ExploringHandler,
                                                   getCurrentDungeon,
                                                   getMessageLog, getPlayerActor,
                                                   getTileCollection)
+import           Gimlight.GameStatus.Talking     (emptyHandler,
+                                                  getExploringHandler)
 import qualified Gimlight.Item                   as I
 import           Gimlight.Localization           (getLocalizedText)
 import qualified Gimlight.Localization.Texts     as T
@@ -38,6 +42,7 @@ import           Gimlight.UI.Draw.Config         (logRows, tileColumns,
                                                   tileHeight, tileRows,
                                                   tileWidth, windowWidth)
 import           Gimlight.UI.Draw.KeyEvent       (withKeyEvents)
+import           Gimlight.UI.Draw.Talking        (drawTalking)
 import           Gimlight.UI.Types               (GameWidgetNode)
 import           Linear.V2                       (V2 (V2), _x, _y)
 import           Monomer                         (CmbBgColor (bgColor),
@@ -49,14 +54,22 @@ import           Monomer                         (CmbBgColor (bgColor),
                                                   CmbWidth (width), Size (Size),
                                                   black, filler, hstack, image,
                                                   imageMem, label, label_,
-                                                  vstack, zstack)
+                                                  nodeKey, nodeVisible, vstack,
+                                                  zstack)
 import qualified Monomer.Lens                    as L
 import           TextShow                        (TextShow (showt))
 
-drawExploring :: ExploringHandler -> GameConfig -> GameWidgetNode
-drawExploring eh c =
-    withKeyEvents $ vstack [statusAndMapGrid, messageLogArea eh c]
+drawExploring :: GameModel -> GameWidgetNode
+drawExploring GameModel {status = s, config = c} =
+    withKeyEvents $
+    zstack [ex, drawTalking tl c `nodeVisible` isTalking `nodeKey` "talking"]
   where
+    ex = vstack [statusAndMapGrid, messageLogArea eh c]
+    (eh, tl, isTalking) =
+        case s of
+            Exploring e -> (e, emptyHandler e, False)
+            Talking th  -> (getExploringHandler th, th, True)
+            _           -> undefined
     statusAndMapGrid =
         hstack
             [ mapGrid eh

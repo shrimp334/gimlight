@@ -36,9 +36,11 @@ import           Control.Lens                     (makeLenses, (%~), (&), (.~),
 import           Control.Monad.State              (State)
 import           Control.Monad.Writer             (MonadWriter (writer), Writer)
 import           Data.Binary                      (Binary)
+import           Data.Default                     (Default (def))
 import           Data.Text                        (Text)
 import           GHC.Generics                     (Generic)
-import           Gimlight.Actor.Identifier        (Identifier, toName)
+import           Gimlight.Actor.Identifier        (Identifier (Electria),
+                                                   toName)
 import qualified Gimlight.Actor.Identifier        as Identifier
 import           Gimlight.Actor.Status            (Status)
 import qualified Gimlight.Actor.Status            as S
@@ -78,6 +80,21 @@ data Actor =
 makeLenses ''Actor
 
 instance Binary Actor
+
+instance Default Actor where
+    def =
+        Actor
+            { _index = 0
+            , _identifier = Electria
+            , _status = S.status (hp 1) 1 1
+            , _pathToDestination = []
+            , _actorKind = FriendlyNpc
+            , _talk = Nothing
+            , _walkingImagePath = "images/player.png"
+            , _standingImagePath = "images/upper_body/momo.png"
+            , _inventoryItems = inventory 5
+            , _target = Nothing
+            }
 
 actor ::
        Identifier

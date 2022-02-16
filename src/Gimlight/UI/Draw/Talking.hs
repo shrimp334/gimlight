@@ -11,7 +11,6 @@ import           Gimlight.Actor                   (Actor, getIdentifier,
 import           Gimlight.Actor.Identifier        (toName)
 import           Gimlight.GameConfig              (GameConfig)
 import           Gimlight.GameStatus.Talking      (TalkingHandler,
-                                                   getExploringHandler,
                                                    getTalkingPart,
                                                    getTalkingPartner)
 import           Gimlight.GameStatus.Talking.Part (SelectionHandler,
@@ -20,7 +19,6 @@ import           Gimlight.GameStatus.Talking.Part (SelectionHandler,
                                                    getSelectingIndex)
 import           Gimlight.Localization            (getLocalizedText)
 import           Gimlight.UI.Draw.Config          (windowHeight, windowWidth)
-import           Gimlight.UI.Draw.Exploring       (drawExploring)
 import           Gimlight.UI.Draw.Fonts           (bold)
 import           Gimlight.UI.Draw.KeyEvent        (withKeyEvents)
 import           Gimlight.UI.Types                (GameWidgetNode)
@@ -46,13 +44,11 @@ drawTalking :: TalkingHandler -> GameConfig -> GameWidgetNode
 drawTalking th c =
     withKeyEvents $
     zstack
-        [ drawExploring afterGameStatus c
-        , filler `styleBasic` [bgColor $ black & L.a .~ 0.5]
+        [ filler `styleBasic` [bgColor $ black & L.a .~ 0.5]
         , talkingWindow c partner (getTalkingPart th)
         ]
   where
     partner = getTalkingPartner th
-    afterGameStatus = getExploringHandler th
 
 talkingWindow :: GameConfig -> Actor -> TalkingPart -> GameWidgetNode
 talkingWindow c a (Selection h) = hstack [standingPicture, window]
