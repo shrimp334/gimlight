@@ -146,6 +146,7 @@ library
                       , Gimlight.Quest.KillBats
                       , Gimlight.TreeZipper
                       , Gimlight.UI.Draw
+                      , Gimlight.UI.Draw.Dialog
                       , Gimlight.UI.Draw.Exploring
                       , Gimlight.UI.Draw.Fonts
                       , Gimlight.UI.Draw.GameOver
@@ -154,6 +155,7 @@ library
                       , Gimlight.UI.Draw.Scene
                       , Gimlight.UI.Draw.SelectingLocale
                       , Gimlight.UI.Draw.SelectingItem
+                      , Gimlight.UI.Draw.Shadow
                       , Gimlight.UI.Draw.Talking
                       , Gimlight.UI.Draw.Title
                       , Gimlight.UI.Event
