@@ -6,9 +6,9 @@ import           Control.Lens                       ((%~), (&))
 import           Control.Monad.Morph                (MFunctor (hoist),
                                                      generalize)
 import           Control.Monad.State                (StateT, execStateT)
-import           Data.Either.Combinators            (fromRight)
-import           Data.Maybe                         (fromMaybe)
 import           Gimlight.Actor                     (player)
+import           Gimlight.Data.Either               (expectRight)
+import           Gimlight.Data.Maybe                (expectJust)
 import           Gimlight.Dungeon                   (Dungeon, cellMap)
 import           Gimlight.Dungeon.Map.Cell          (locateActorAt,
                                                      updateExploredMap,
@@ -26,6 +26,6 @@ initDungeon tc = do
   where
     initBeaeve p cm' =
         updateExploredMap .
-        fromMaybe (error "Failed to update the player FoV.") .
-        updatePlayerFov tc . fromRight (error "Failed to locate the player.") $
+        expectJust "Failed to update the player FoV." .
+        updatePlayerFov tc . expectRight "Failed to locate the player." $
         execStateT (locateActorAt tc p (V2 10 10)) cm'

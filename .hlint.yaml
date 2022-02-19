@@ -1,2 +1,3 @@
 - error: {lhs: fromMaybe (error s) x, rhs: expectJust s x}
 - error: {lhs: fromRight undefined, rhs: fromRight'}
+- error: {lhs: fromRight (error s) x, rhs: expectRight s x}

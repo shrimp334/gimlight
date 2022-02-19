@@ -8,7 +8,6 @@ import           Control.Monad.State         (StateT (runStateT), evalStateT,
                                               execStateT)
 import           Control.Monad.Writer        (MonadWriter (writer), Writer)
 import           Data.Array                  ((!))
-import           Data.Either                 (fromRight)
 import           Data.Foldable               (find)
 import           Data.Maybe                  (fromMaybe)
 import           Gimlight.Action             (Action, ActionResult (killed),
@@ -20,6 +19,7 @@ import           Gimlight.Actor              (Actor, getIndex, isFriendlyNpc,
                                               isPlayer, pathToDestination,
                                               target)
 import           Gimlight.Coord              (Coord)
+import           Gimlight.Data.Either        (expectRight)
 import           Gimlight.Dungeon.Map.Cell   (CellMap, locateActorAt,
                                               positionsAndActors, removeActorAt,
                                               removeActorIf, transparentMap)
@@ -117,7 +117,7 @@ popPathToDestinationAndMove position tc cm =
     moveAction moveTo position tc newMap
   where
     (moveTo, newMap) =
-        fromRight (error "No such actor.") $
+        expectRight "No such actor." $
         flip runStateT cm $ do
             a <- removeActorAt position
             let path = a ^. pathToDestination

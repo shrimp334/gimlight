@@ -5,12 +5,12 @@ module Gimlight.Action.PickUpSpec
 import           Control.Lens                ((%~), (&))
 import           Control.Monad.State         (StateT (runStateT), execStateT)
 import           Control.Monad.Writer        (writer)
-import           Data.Either                 (fromRight)
 import           Data.Maybe                  (fromJust)
 import           Gimlight.Action             (ActionResult (ActionResult, killed, newCellMap, status),
                                               ActionStatus (Failed, Ok))
 import           Gimlight.Action.PickUp      (pickUpAction)
 import           Gimlight.Actor              (inventoryItems)
+import           Gimlight.Data.Either        (expectRight)
 import           Gimlight.Dungeon.Map.Cell   (locateActorAt, removeActorAt,
                                               removeItemAt)
 import           Gimlight.Inventory          (addItem)
@@ -39,7 +39,7 @@ testPickUpSuccess =
         ActionResult
             {status = Ok, newCellMap = cellMapAfterPickingUp, killed = []}
     cellMapAfterPickingUp =
-        fromRight (error "Failed to pick up.") $
+        expectRight "Failed to pick up." $
         flip execStateT initCellMap $ do
             _ <- removeItemAt playerPosition
             _ <- removeActorAt playerPosition
@@ -47,8 +47,8 @@ testPickUpSuccess =
     expectedLog = [T.youGotItem $ getName herb]
     actorWithItem =
         (\(x, _) -> x & inventoryItems %~ (fromJust . addItem herb))
-            (fromRight
-                 (error "Failed to add an item.")
+            (expectRight
+                 "Failed to add an item."
                  (flip runStateT initCellMap $ removeActorAt playerPosition))
 
 testPickUpVoid :: Spec
