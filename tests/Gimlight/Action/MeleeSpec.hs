@@ -7,7 +7,7 @@ module Gimlight.Action.MeleeSpec
 import           Control.Monad.State       (StateT (runStateT), evalStateT,
                                             execStateT)
 import           Control.Monad.Writer      (runWriter, writer)
-import           Data.Either               (fromRight)
+import           Data.Either.Combinators   (fromRight')
 import           Data.Maybe                (fromJust)
 import           Gimlight.Action           (ActionResult (ActionResult, killed, newCellMap, status),
                                             ActionStatus (Ok))
@@ -42,10 +42,10 @@ testKill =
             }
     ((_, newDefender), expectedLog) = runWriter $ attackFromTo attacker defender
     (defender, cellMapWithoutDefender) =
-        fromRight undefined $
+        fromRight' $
         flip runStateT initCellMap $ removeActorAt weakestOrcPosition
     attacker =
-        fromRight undefined $
+        fromRight' $
         flip evalStateT initCellMap $ removeActorAt strongestOrcPosition
     offset = weakestOrcPosition - strongestOrcPosition
 
@@ -61,7 +61,7 @@ testDamage =
         ActionResult
             { status = Ok
             , newCellMap =
-                  fromRight undefined $
+                  fromRight' $
                   flip execStateT cellMapWithoutDefender $
                   locateActorAt
                       initTileCollection
@@ -71,9 +71,9 @@ testDamage =
             }
     ((_, newDefender), expectedLog) = runWriter $ attackFromTo attacker defender
     (defender, cellMapWithoutDefender) =
-        fromRight undefined $
+        fromRight' $
         flip runStateT initCellMap $ removeActorAt intermediateOrcPosition
     attacker =
-        fromRight undefined $
+        fromRight' $
         flip evalStateT initCellMap $ removeActorAt strongestOrcPosition
     offset = intermediateOrcPosition - strongestOrcPosition

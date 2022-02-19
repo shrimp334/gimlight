@@ -7,7 +7,7 @@ module Gimlight.Action.DropSpec
 import           Control.Lens                ((%~), (&))
 import           Control.Monad.State         (execStateT)
 import           Control.Monad.Trans.Writer  (writer)
-import           Data.Either                 (fromRight)
+import           Data.Either.Combinators     (fromRight')
 import           Gimlight.Action             (ActionResult (ActionResult, killed, newCellMap, status),
                                               ActionStatus (Failed, Ok))
 import           Gimlight.Action.Drop        (dropAction)
@@ -38,7 +38,7 @@ testDropItemSuccessfully =
         ActionResult
             {status = Ok, newCellMap = cellMapAfterDropping, killed = []}
     cellMapAfterDropping =
-        fromRight undefined $
+        fromRight' $
         flip execStateT initCellMap $ do
             a <- removeActorAt orcWithHerbPosition
             locateActorAt

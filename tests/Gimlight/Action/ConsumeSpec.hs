@@ -5,7 +5,7 @@ module Gimlight.Action.ConsumeSpec
 import           Control.Lens                ((%~), (&))
 import           Control.Monad.State         (evalStateT, execStateT)
 import           Control.Monad.Writer        (writer)
-import           Data.Either                 (fromRight)
+import           Data.Either.Combinators     (fromRight')
 import           Gimlight.Action             (ActionResult (ActionResult, killed, newCellMap, status),
                                               ActionStatus (Ok, ReadingStarted))
 import           Gimlight.Action.Consume     (consumeAction)
@@ -59,7 +59,7 @@ testConsumeHerb =
           healAmount $ getEffect herb
         ]
     cellMapAfterConsuming =
-        fromRight undefined $
+        fromRight' $
         flip execStateT initCellMap $ do
             a <- removeActorAt orcWithHerbPosition
             locateActorAt
@@ -67,7 +67,7 @@ testConsumeHerb =
                 (a & inventoryItems %~ (snd . removeNthItem 0))
                 orcWithHerbPosition
     orcWithItem =
-        fromRight undefined $
+        fromRight' $
         flip evalStateT initCellMap $ removeActorAt orcWithHerbPosition
     healAmount (Heal h) = getHealAmount h
     healAmount _        = error "Not a healer."

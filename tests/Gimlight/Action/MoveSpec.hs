@@ -4,7 +4,7 @@ module Gimlight.Action.MoveSpec
 
 import           Control.Monad.State         (execStateT)
 import           Control.Monad.Writer        (writer)
-import           Data.Either                 (fromRight)
+import           Data.Either.Combinators     (fromRight')
 import           Gimlight.Action             (ActionResult (ActionResult, killed, newCellMap, status),
                                               ActionResultWithLog,
                                               ActionStatus (Failed, Ok))
@@ -45,7 +45,7 @@ succeed offset = writer (result, [])
     result =
         ActionResult {status = Ok, newCellMap = cellMapWithPlayer, killed = []}
     cellMapWithPlayer =
-        fromRight undefined $
+        fromRight' $
         flip execStateT initCellMap $ do
             a <- removeActorAt playerPosition
             locateActorAt initTileCollection a (playerPosition + offset)
