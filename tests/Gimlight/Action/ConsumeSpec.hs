@@ -3,14 +3,13 @@ module Gimlight.Action.ConsumeSpec
     ) where
 
 import           Control.Lens                ((%~), (&))
-import           Control.Monad.State         (evalStateT, execStateT)
+import           Control.Monad.State         (execStateT)
 import           Control.Monad.Writer        (writer)
 import           Data.Either.Combinators     (fromRight')
 import           Gimlight.Action             (ActionResult (ActionResult, killed, newCellMap, status),
                                               ActionStatus (Ok, ReadingStarted))
 import           Gimlight.Action.Consume     (consumeAction)
-import           Gimlight.Actor              (getIdentifier, inventoryItems)
-import           Gimlight.Actor.Identifier   (toName)
+import           Gimlight.Actor              (inventoryItems)
 import           Gimlight.Dungeon.Map.Cell   (locateActorAt, removeActorAt)
 import           Gimlight.Inventory          (removeNthItem)
 import           Gimlight.Item               (Effect (Book, Heal), getEffect,
@@ -54,10 +53,7 @@ testConsumeHerb =
     expectedResult =
         ActionResult
             {status = Ok, newCellMap = cellMapAfterConsuming, killed = []}
-    expectedLog =
-        [ T.healed (toName $ getIdentifier orcWithItem) $
-          healAmount $ getEffect herb
-        ]
+    expectedLog = [T.healed T.orc $ healAmount $ getEffect herb]
     cellMapAfterConsuming =
         fromRight' $
         flip execStateT initCellMap $ do
@@ -66,8 +62,5 @@ testConsumeHerb =
                 initTileCollection
                 (a & inventoryItems %~ (snd . removeNthItem 0))
                 orcWithHerbPosition
-    orcWithItem =
-        fromRight' $
-        flip evalStateT initCellMap $ removeActorAt orcWithHerbPosition
     healAmount (Heal h) = getHealAmount h
     healAmount _        = error "Not a healer."
