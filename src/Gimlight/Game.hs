@@ -4,9 +4,9 @@ module Gimlight.Game
     ( start
     ) where
 
-import           Gimlight.GameConfig     (getLocale, readConfigOrDefault)
+import           Gimlight.GameConfig     (initConfig)
 import           Gimlight.GameModel      (GameModel (GameModel, config, status))
-import           Gimlight.GameStatus     (GameStatus (SelectingLocale, Title))
+import           Gimlight.GameStatus     (GameStatus (SelectingLocale))
 import           Gimlight.UI.Draw        (drawUI)
 import           Gimlight.UI.Draw.Config (windowHeight, windowWidth)
 import           Gimlight.UI.Draw.Fonts  (bold, regular)
@@ -19,17 +19,9 @@ import           Monomer                 (Font (unFont),
                                           appWindowTitle, darkTheme, startApp)
 
 start :: IO ()
-start = do
-    initModel <- createModel
-    startApp initModel handleEvent buildUI initUIConfig
+start = startApp initModel handleEvent buildUI initUIConfig
   where
-    createModel = do
-        initConfig <- readConfigOrDefault
-        let initStatus =
-                case getLocale initConfig of
-                    Just _  -> Title
-                    Nothing -> SelectingLocale
-        return GameModel {status = initStatus, config = initConfig}
+    initModel = GameModel {status = SelectingLocale, config = initConfig}
     handleEvent = E.handleEvent
     buildUI = drawUI
     initUIConfig =

@@ -7,7 +7,7 @@ module Gimlight.UI.Event
 import           Data.Maybe                        (fromMaybe)
 import           Data.Text                         (Text)
 import           Gimlight.GameConfig               (Language (English, Japanese),
-                                                    setLocale, writeConfig)
+                                                    setLocale)
 import           Gimlight.GameModel                (GameModel (GameModel, config, status))
 import           Gimlight.GameStatus               (GameStatus (Exploring, GameOver, ReadingBook, Scene, SelectingItem, SelectingLocale, Talking, Title),
                                                     newGameStatus)
@@ -151,11 +151,8 @@ handleKeyInputDuringTitle g k
 handleKeyInputDuringSelectingLanguage ::
        GameModel -> Text -> [GameEventResponse]
 handleKeyInputDuringSelectingLanguage g@GameModel {config = c} k
-    | k == "e" = [Task $ LanguageSelected <$> updateConfig English]
-    | k == "j" = [Task $ LanguageSelected <$> updateConfig Japanese]
+    | k == "e" = [Model $ updateConfig English]
+    | k == "j" = [Model $ updateConfig Japanese]
     | otherwise = []
   where
-    updateConfig l = do
-        let newConfig = setLocale l c
-        writeConfig newConfig
-        return $ g {status = Title, config = newConfig}
+    updateConfig l = g {status = Title, config = setLocale l c}

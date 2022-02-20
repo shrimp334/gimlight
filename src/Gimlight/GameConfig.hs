@@ -1,19 +1,15 @@
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Gimlight.GameConfig
     ( GameConfig
     , Language(..)
-    , readConfigOrDefault
-    , writeConfig
+    , initConfig
     , setLocale
     , getLocale
     ) where
 
-import           Data.Binary      (Binary, decodeFile, encodeFile)
-import           Data.Maybe       (fromMaybe)
-import           GHC.Generics     (Generic)
-import           System.Directory (doesFileExist)
+import           Data.Binary  (Binary)
+import           GHC.Generics (Generic)
 
 data Language
     = English
@@ -30,23 +26,6 @@ newtype GameConfig =
 
 instance Binary GameConfig
 
-readConfigOrDefault :: IO GameConfig
-readConfigOrDefault = fromMaybe initConfig <$> tryReadConfig
-
-tryReadConfig :: IO (Maybe GameConfig)
-tryReadConfig = do
-    fileExists <- doesFileExist configFilePath
-    if fileExists
-        then do
-            cfg <- decodeFile configFilePath
-            return $ Just cfg
-        else do
-            encodeFile configFilePath initConfig
-            return Nothing
-
-writeConfig :: GameConfig -> IO ()
-writeConfig = encodeFile configFilePath
-
 initConfig :: GameConfig
 initConfig = GameConfig {language = Nothing}
 
@@ -55,6 +34,3 @@ setLocale l c = c {language = Just l}
 
 getLocale :: GameConfig -> Maybe Language
 getLocale GameConfig {language = l} = l
-
-configFilePath :: FilePath
-configFilePath = "config"
