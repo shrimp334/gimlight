@@ -27,7 +27,7 @@ import           Gimlight.Player                   (handlePlayerAfterSelecting,
                                                     handlePlayerMoving,
                                                     handlePlayerPickingUp,
                                                     handlePlayerSelectingItem)
-import           Gimlight.UI.Types                 (AppEvent (AppInit, AppKeyboardInput, LanguageSelected, NewGameLoaded, ShowNextScene),
+import           Gimlight.UI.Types                 (AppEvent (AppInit, AppKeyboardInput, NewGameLoaded, ShowNextScene),
                                                     GameEventResponse,
                                                     GameWidgetEnv,
                                                     GameWidgetNode)
@@ -45,11 +45,10 @@ handleEvent ::
     -> [GameEventResponse]
 handleEvent _ _ gameStatus evt =
     case evt of
-        AppInit             -> []
-        AppKeyboardInput k  -> handleKeyInput gameStatus k
-        NewGameLoaded gm    -> [Model gm]
-        LanguageSelected gm -> [Model gm]
-        ShowNextScene       -> nextStatus gameStatus
+        AppInit            -> []
+        AppKeyboardInput k -> handleKeyInput gameStatus k
+        NewGameLoaded gm   -> [Model gm]
+        ShowNextScene      -> nextStatus gameStatus
   where
     nextStatus g@GameModel {status = Scene sh} =
         case nextSceneOrFinish sh of

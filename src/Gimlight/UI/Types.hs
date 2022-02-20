@@ -13,7 +13,6 @@ data AppEvent
     = AppInit
     | AppKeyboardInput Text
     | NewGameLoaded GameModel
-    | LanguageSelected GameModel
     | ShowNextScene
     deriving (Eq)
 
