@@ -62,19 +62,18 @@ attackFromTo attacker defender = (newAttacker, newDefender, message)
             , experience = newAttackerExp
             }
     newDefender = receiveDamage damage defender
-    (levelUp, newAttackerExp) =
-        if isNothing newDefender
-            then gainExperience experiencePointAmount (experience attacker)
-            else (0, experience attacker)
+    (levelUp, newAttackerExp)
+        | isNothing newDefender =
+            gainExperience experiencePointAmount (experience attacker)
+        | otherwise = (0, experience attacker)
     experiencePointAmount = getPower defender + getDefence defender
     message =
         case newDefender of
             Just _  -> notKilledMessage
             Nothing -> killedMessage
-    notKilledMessage a d =
-        if damage > 0
-            then [M.message $ T.damagedMessage damage a d]
-            else [M.message $ T.noDamageMessage a d]
+    notKilledMessage a d
+        | damage > 0 = [M.message $ T.damagedMessage damage a d]
+        | otherwise = [M.message $ T.noDamageMessage a d]
     killedMessage a d =
         map M.message [T.damagedMessage damage a d, T.deathMessage d] ++
         [M.message $ T.levelUp a (getLevel newAttacker) | levelUp > 0]
