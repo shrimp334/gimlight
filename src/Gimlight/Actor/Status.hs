@@ -1,4 +1,5 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric   #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Gimlight.Actor.Status
     ( Status
@@ -14,6 +15,9 @@ module Gimlight.Actor.Status
     , getDefence
     ) where
 
+import           Control.Lens                     (makeLenses, (%%~), (%~), (&),
+                                                   (+=), (.=), (^.))
+import           Control.Monad.State              (execState)
 import           Data.Binary                      (Binary)
 import           Data.Maybe                       (isNothing)
 import           GHC.Generics                     (Generic)
@@ -28,12 +32,14 @@ import qualified Gimlight.Log                     as M
 
 data Status =
     Status
-        { hp         :: Hp
-        , power      :: Int
-        , defence    :: Int
-        , experience :: Experience
+        { _hp         :: Hp
+        , _power      :: Int
+        , _defence    :: Int
+        , _experience :: Experience
         }
     deriving (Show, Ord, Eq, Generic)
+
+makeLenses ''Status
 
 instance Binary Status
 
@@ -41,10 +47,10 @@ status :: Hp -> Int -> Int -> Status
 status h p d = Status h p d E.experience
 
 getHp :: Status -> Int
-getHp Status {hp = h} = HP.getHp h
+getHp st = HP.getHp $ st ^. hp
 
 getMaxHp :: Status -> Int
-getMaxHp Status {hp = h} = HP.getMaxHp h
+getMaxHp st = HP.getMaxHp $ st ^. hp
 
 attackFromTo ::
        Status
@@ -56,16 +62,15 @@ attackFromTo attacker defender = (newAttacker, newDefender, message)
   where
     damage = max 0 $ getPower attacker - getDefence defender
     newAttacker =
-        attacker
-            { power = getPower attacker + levelUp
-            , defence = getDefence attacker + levelUp
-            , experience = newAttackerExp
-            }
+        flip execState attacker $ do
+            power += levelUp
+            defence += levelUp
+            experience .= newAttackerExp
     newDefender = receiveDamage damage defender
     (levelUp, newAttackerExp)
         | isNothing newDefender =
-            gainExperience experiencePointAmount (experience attacker)
-        | otherwise = (0, experience attacker)
+            gainExperience experiencePointAmount (_experience attacker)
+        | otherwise = (0, _experience attacker)
     experiencePointAmount = getPower defender + getDefence defender
     message =
         case newDefender of
@@ -79,24 +84,22 @@ attackFromTo attacker defender = (newAttacker, newDefender, message)
         [M.message $ T.levelUp a (getLevel newAttacker) | levelUp > 0]
 
 healHp :: Int -> Status -> Status
-healHp amount a@Status {hp = h} = a {hp = HP.healHp amount h}
+healHp amount st = st & hp %~ HP.healHp amount
 
 receiveDamage :: Int -> Status -> Maybe Status
-receiveDamage damage a@Status {hp = h} =
-    (\x -> a {hp = x}) <$> HP.receiveDamage damage h
+receiveDamage damage st = st & hp %%~ HP.receiveDamage damage
 
 getPower :: Status -> Int
-getPower = power
+getPower = _power
 
 getDefence :: Status -> Int
-getDefence = defence
+getDefence = _defence
 
 getLevel :: Status -> Int
-getLevel Status {experience = e} = E.getLevel e
+getLevel st = E.getLevel $ st ^. experience
 
 getCurrentExperiencePoint :: Status -> Int
-getCurrentExperiencePoint Status {experience = e} =
-    E.getCurrentExperiencePoint e
+getCurrentExperiencePoint st = E.getCurrentExperiencePoint $ st ^. experience
 
 getExperiencePointForNextLevel :: Status -> Int
-getExperiencePointForNextLevel Status {experience = e} = E.pointForNextLevel e
+getExperiencePointForNextLevel st = E.pointForNextLevel $ st ^. experience
