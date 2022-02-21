@@ -10,7 +10,6 @@ module Gimlight.Inventory
     ) where
 
 import           Control.Lens  (makeLenses, (%~), (&), (.~), (^.))
-import           Data.Binary   (Binary)
 import           GHC.Generics  (Generic)
 import           Gimlight.Item (Item)
 
@@ -22,8 +21,6 @@ data Inventory =
     deriving (Show, Ord, Eq, Generic)
 
 makeLenses ''Inventory
-
-instance Binary Inventory
 
 inventory :: Int -> Inventory
 inventory n = Inventory {_items = [], _maxItems = n}

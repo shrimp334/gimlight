@@ -14,7 +14,6 @@ module Gimlight.TreeZipper
     , appendTree
     ) where
 
-import           Data.Binary   (Binary)
 import           Data.Foldable (find)
 import           Data.Tree     (Tree (Node, rootLabel, subForest))
 import           GHC.Generics  (Generic)
@@ -22,8 +21,6 @@ import           GHC.Generics  (Generic)
 data TreeCrumb a =
     TreeCrumb a [Tree a]
     deriving (Show, Ord, Eq, Generic)
-
-instance (Binary a) => Binary (TreeCrumb a)
 
 type TreeZipper a = (Tree a, [TreeCrumb a])
 

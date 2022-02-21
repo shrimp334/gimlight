@@ -21,7 +21,6 @@ module Gimlight.Dungeon
 
 import           Control.Lens                (makeLenses, (^.))
 import           Data.Array.Base             (assocs)
-import           Data.Binary                 (Binary)
 import           GHC.Generics                (Generic)
 import           Gimlight.Coord              (Coord)
 import           Gimlight.Dungeon.Identifier (Identifier)
@@ -46,8 +45,6 @@ data Dungeon =
     deriving (Show, Ord, Eq, Generic)
 
 makeLenses ''Dungeon
-
-instance Binary Dungeon
 
 dungeon :: CellMap -> Identifier -> Dungeon
 dungeon c ident =

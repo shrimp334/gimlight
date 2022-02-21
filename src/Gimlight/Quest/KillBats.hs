@@ -11,7 +11,6 @@ module Gimlight.Quest.KillBats
     , handleWithTurnResult
     ) where
 
-import           Data.Binary                 (Binary)
 import           GHC.Generics                (Generic)
 import qualified Gimlight.Actor.Identifier   as A
 import qualified Gimlight.Dungeon.Identifier as D
@@ -23,8 +22,6 @@ data KillBats
           }
     | Completed
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary KillBats
 
 killBats :: KillBats
 killBats = NotStarted

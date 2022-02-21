@@ -8,7 +8,6 @@ module Gimlight.GameConfig
     , getLocale
     ) where
 
-import           Data.Binary  (Binary)
 import           GHC.Generics (Generic)
 
 data Language
@@ -16,15 +15,11 @@ data Language
     | Japanese
     deriving (Eq, Show, Generic)
 
-instance Binary Language
-
 newtype GameConfig =
     GameConfig
         { language :: Maybe Language
         }
     deriving (Eq, Show, Generic)
-
-instance Binary GameConfig
 
 initConfig :: GameConfig
 initConfig = GameConfig {language = Nothing}

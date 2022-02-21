@@ -16,7 +16,6 @@ module Gimlight.GameStatus.Talking.Part
     , selectNextChoice
     ) where
 
-import           Data.Binary           (Binary)
 import           Data.List.NonEmpty    (NonEmpty, toList)
 import qualified Data.List.NonEmpty    as NonEmpty
 import           GHC.Generics          (Generic)
@@ -32,8 +31,6 @@ data UpdateQuestHandler =
         }
     deriving (Show, Ord, Eq, Generic)
 
-instance Binary UpdateQuestHandler
-
 data QuestInquiryHandler =
     QuestInquiryHandler
         { inquiry   :: Inquiry
@@ -41,8 +38,6 @@ data QuestInquiryHandler =
         , falseThen :: Maybe TalkingPart
         }
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary QuestInquiryHandler
 
 data SelectionHandler =
     SelectionHandler
@@ -52,15 +47,11 @@ data SelectionHandler =
         }
     deriving (Show, Ord, Eq, Generic)
 
-instance Binary SelectionHandler
-
 data TalkingPart
     = Selection SelectionHandler
     | QuestInquiry QuestInquiryHandler
     | UpdateQuest UpdateQuestHandler
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary TalkingPart
 
 selectionHandler ::
        MultilingualText

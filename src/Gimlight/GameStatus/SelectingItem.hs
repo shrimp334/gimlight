@@ -12,7 +12,6 @@ module Gimlight.GameStatus.SelectingItem
     , selectNextItem
     ) where
 
-import           Data.Binary                   (Binary)
 import           GHC.Generics                  (Generic)
 import           Gimlight.GameStatus.Exploring (ExploringHandler)
 import           Gimlight.Item                 (Item)
@@ -22,8 +21,6 @@ data Reason
     | Use
     deriving (Show, Ord, Eq, Generic)
 
-instance Binary Reason
-
 data SelectingItemHandler =
     SelectingItemHandler
         { items     :: [Item]
@@ -32,8 +29,6 @@ data SelectingItemHandler =
         , handler   :: ExploringHandler
         }
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary SelectingItemHandler
 
 selectingItemHandler ::
        [Item] -> Reason -> ExploringHandler -> SelectingItemHandler

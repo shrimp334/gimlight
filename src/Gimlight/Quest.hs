@@ -12,7 +12,6 @@ module Gimlight.Quest
     ) where
 
 import           Control.Lens                (makeLenses, (%~), (&), (.~), (^.))
-import           Data.Binary                 (Binary)
 import           GHC.Generics                (Generic)
 import qualified Gimlight.Actor.Identifier   as A
 import qualified Gimlight.Dungeon.Identifier as D
@@ -25,14 +24,10 @@ data Inquiry
     | IsKillBatsCompleted
     deriving (Show, Ord, Eq, Generic)
 
-instance Binary Inquiry
-
 data Updater
     = StartKillBats
     | CompleteKillBats
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary Updater
 
 newtype QuestCollection =
     QuestCollection
@@ -41,8 +36,6 @@ newtype QuestCollection =
     deriving (Show, Ord, Eq, Generic)
 
 makeLenses ''QuestCollection
-
-instance Binary QuestCollection
 
 questCollection :: QuestCollection
 questCollection = QuestCollection {_killBats = KillBats.killBats}

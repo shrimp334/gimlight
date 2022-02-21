@@ -11,7 +11,6 @@ module Gimlight.GameStatus.Talking
     , selectNextChoice
     ) where
 
-import           Data.Binary                      (Binary)
 import           GHC.Generics                     (Generic)
 import           Gimlight.Actor                   (Actor)
 import           Gimlight.GameStatus.Exploring    (ExploringHandler, getQuests,
@@ -27,8 +26,6 @@ data TalkingHandler =
         , afterTalking   :: ExploringHandler
         }
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary TalkingHandler
 
 talkingHandler :: Actor -> TalkingPart -> ExploringHandler -> TalkingHandler
 talkingHandler a p h = TalkingHandler a updatedPart updatedHandler

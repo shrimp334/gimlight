@@ -14,7 +14,6 @@ module Gimlight.GameStatus.Scene
 
 import           Control.Lens                  (makeLenses, view, (&), (.~),
                                                 (^.))
-import           Data.Binary                   (Binary)
 import           Data.List.NonEmpty            (NonEmpty)
 import qualified Data.List.NonEmpty            as N
 import           Data.Text                     (Text)
@@ -26,8 +25,6 @@ newtype SceneElement =
     WithoutSpeaker MultilingualText
     deriving (Show, Ord, Eq, Generic)
 
-instance Binary SceneElement
-
 data SceneHandler =
     SceneHandler
         { _backgroundImage :: Text
@@ -37,8 +34,6 @@ data SceneHandler =
     deriving (Show, Ord, Eq, Generic)
 
 makeLenses ''SceneHandler
-
-instance Binary SceneHandler
 
 withoutSpeaker :: MultilingualText -> SceneElement
 withoutSpeaker = WithoutSpeaker

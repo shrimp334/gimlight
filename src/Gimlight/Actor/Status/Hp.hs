@@ -9,7 +9,6 @@ module Gimlight.Actor.Status.Hp
     , receiveDamage
     ) where
 
-import           Data.Binary         (Binary)
 import           GHC.Generics        (Generic)
 import           Gimlight.Data.Maybe (expectJust)
 
@@ -19,8 +18,6 @@ data Hp =
         , maxHp     :: Int
         }
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary Hp
 
 hp :: Int -> Hp
 hp h = expectJust "The initial HP value must be positive." (hpOrFail h)

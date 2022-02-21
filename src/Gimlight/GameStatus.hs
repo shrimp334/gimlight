@@ -10,7 +10,6 @@ module Gimlight.GameStatus
 import           Control.Lens                          ()
 import           Control.Monad.State                   (StateT (runStateT),
                                                         evalState, evalStateT)
-import           Data.Binary                           (Binary)
 import           Data.List.NonEmpty                    (fromList)
 import           Data.Tree                             (Tree (Node, rootLabel, subForest))
 import           GHC.Generics                          (Generic)
@@ -50,8 +49,6 @@ data GameStatus
     | GameOver
     | SelectingLocale
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary GameStatus
 
 newGameStatus :: IO GameStatus
 newGameStatus = do

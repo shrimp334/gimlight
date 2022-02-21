@@ -11,12 +11,10 @@ module Gimlight.Dungeon.Map.Tile
     , getImage
     ) where
 
-import           Codec.Picture        (Image (Image, imageData, imageHeight, imageWidth),
-                                       PixelRGBA8)
-import           Data.Binary          (Binary (get, put))
-import           Data.Map             (Map)
-import           Data.Vector.Storable (fromList, toList)
-import           GHC.Generics         (Generic)
+import           Codec.Picture (Image (imageData, imageHeight, imageWidth),
+                                PixelRGBA8)
+import           Data.Map      (Map)
+import           GHC.Generics  (Generic)
 
 data Tile =
     Tile
@@ -39,16 +37,6 @@ instance Ord Tile where
         imageWidth (image a) <= imageWidth (image b) &&
         imageHeight (image a) <= imageHeight (image b) &&
         imageData (image a) <= imageData (image b)
-
-instance Binary Tile where
-    put t = do
-        put $ walkable t
-        put $ transparent t
-        put . imageWidth $ image t
-        put . imageHeight $ image t
-        put . toList . imageData $ image t
-    get =
-        Tile <$> get <*> get <*> (Image <$> get <*> get <*> (fromList <$> get))
 
 type TileCollection = Map TileId Tile
 

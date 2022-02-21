@@ -7,7 +7,6 @@ module Gimlight.Localization
     , getLocalizedText
     ) where
 
-import           Data.Binary         (Binary)
 import           Data.Text           (Text, append)
 import           GHC.Generics        (Generic)
 import           Gimlight.GameConfig (GameConfig, Language (English, Japanese),
@@ -19,8 +18,6 @@ data MultilingualText =
         , ja :: Text
         }
     deriving (Show, Eq, Ord, Generic)
-
-instance Binary MultilingualText
 
 instance Semigroup MultilingualText where
     (<>) a b = multilingualText (en a `append` en b) (ja a `append` ja b)

@@ -40,7 +40,6 @@ import           Control.Monad.State       (MonadTrans (lift), StateT (StateT),
                                             gets)
 import           Data.Array                (Array, assocs, bounds, (!), (//))
 import           Data.Bifunctor            (Bifunctor (second))
-import           Data.Binary               (Binary)
 import           Data.Either.Combinators   (maybeToRight)
 import           Data.Foldable             (find)
 import qualified Data.Map                  as M
@@ -72,8 +71,6 @@ data TileIdLayer =
 
 makeLenses ''TileIdLayer
 
-instance Binary TileIdLayer
-
 data Cell =
     Cell
         { _tileIdLayer       :: TileIdLayer
@@ -85,8 +82,6 @@ data Cell =
     deriving (Show, Ord, Eq, Generic)
 
 makeLenses ''Cell
-
-instance Binary Cell
 
 isWalkable :: TileCollection -> Cell -> Bool
 isWalkable tc c =

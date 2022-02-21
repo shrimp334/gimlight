@@ -9,7 +9,6 @@ module Gimlight.Actor.Status.Experience
     , pointForNextLevel
     ) where
 
-import           Data.Binary  (Binary)
 import           GHC.Generics (Generic)
 
 data Experience =
@@ -18,8 +17,6 @@ data Experience =
         , level :: Int
         }
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary Experience
 
 experience :: Experience
 experience = Experience 0 1

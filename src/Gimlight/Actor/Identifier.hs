@@ -5,7 +5,6 @@ module Gimlight.Actor.Identifier
     , toName
     ) where
 
-import           Data.Binary                 (Binary)
 import           GHC.Generics                (Generic)
 import           Gimlight.Localization       (MultilingualText)
 import qualified Gimlight.Localization.Texts as T
@@ -16,8 +15,6 @@ data Identifier
     | Electria
     | Player
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary Identifier
 
 toName :: Identifier -> MultilingualText
 toName Orc      = T.orc

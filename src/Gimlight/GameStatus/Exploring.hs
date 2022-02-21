@@ -22,7 +22,6 @@ import           Control.Lens                           (makeLenses, (%%~),
                                                          (%~), (&), (.~), (^.))
 import           Control.Monad                          ((>=>))
 import           Control.Monad.Trans.Writer             (runWriter)
-import           Data.Binary                            (Binary)
 import           GHC.Generics                           (Generic)
 import           Gimlight.Action                        (Action, ActionStatus)
 import           Gimlight.Actor                         (Actor, getIdentifier)
@@ -52,8 +51,6 @@ data ExploringHandler =
     deriving (Show, Ord, Eq, Generic)
 
 makeLenses ''ExploringHandler
-
-instance Binary ExploringHandler
 
 exploringHandler ::
        TreeZipper Dungeon

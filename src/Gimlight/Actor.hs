@@ -35,7 +35,6 @@ import           Control.Lens                     (makeLenses, (%~), (&), (.~),
                                                    (^.))
 import           Control.Monad.State              (State)
 import           Control.Monad.Writer             (MonadWriter (writer), Writer)
-import           Data.Binary                      (Binary)
 import           Data.Text                        (Text)
 import           GHC.Generics                     (Generic)
 import           Gimlight.Actor.Identifier        (Identifier, toName)
@@ -58,8 +57,6 @@ data ActorKind
     | Monster
     deriving (Show, Ord, Eq, Generic)
 
-instance Binary ActorKind
-
 data Actor =
     Actor
         { _index             :: Index
@@ -76,8 +73,6 @@ data Actor =
     deriving (Show, Ord, Eq, Generic)
 
 makeLenses ''Actor
-
-instance Binary Actor
 
 actor ::
        Identifier

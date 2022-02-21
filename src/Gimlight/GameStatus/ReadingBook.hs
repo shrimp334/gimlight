@@ -7,7 +7,6 @@ module Gimlight.GameStatus.ReadingBook
     , finishReading
     ) where
 
-import           Data.Binary                   (Binary)
 import           GHC.Generics                  (Generic)
 import           Gimlight.GameStatus.Exploring (ExploringHandler,
                                                 processAfterPlayerTurn)
@@ -19,8 +18,6 @@ data ReadingBookHandler =
         , afterReading :: ExploringHandler
         }
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary ReadingBookHandler
 
 readingBookHandler :: MultilingualText -> ExploringHandler -> ReadingBookHandler
 readingBookHandler = ReadingBookHandler

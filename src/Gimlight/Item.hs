@@ -12,7 +12,6 @@ module Gimlight.Item
     , isUsableManyTimes
     ) where
 
-import           Data.Binary                 (Binary)
 import           Data.Text                   (Text)
 import           GHC.Generics                (Generic)
 import           Gimlight.Item.Book          (Book)
@@ -25,8 +24,6 @@ data Effect
     | Book Book
     deriving (Show, Ord, Eq, Generic)
 
-instance Binary Effect
-
 data Item =
     Item
         { name            :: MultilingualText
@@ -35,8 +32,6 @@ data Item =
         , usableManyTimes :: Bool
         }
     deriving (Show, Ord, Eq, Generic)
-
-instance Binary Item
 
 item :: MultilingualText -> Text -> Effect -> Bool -> Item
 item n ip e u =

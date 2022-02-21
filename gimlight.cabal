@@ -11,7 +11,6 @@ common common
     build-depends:      astar >= 0.3.0 && < 0.4
                       , array >= 0.5.4 && < 0.6
                       , base >= 4.14.3 && < 4.15
-                      , binary >= 0.8.8 && < 0.9
                       , bytestring-to-vector >= 0.3.0.1 && < 0.4
                       , containers >= 0.6.5.1 && < 0.7
                       , data-default >= 0.7.1 && < 0.8

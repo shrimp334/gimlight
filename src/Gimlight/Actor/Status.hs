@@ -18,7 +18,6 @@ module Gimlight.Actor.Status
 import           Control.Lens                     (makeLenses, (%%~), (%~), (&),
                                                    (+=), (.=), (^.))
 import           Control.Monad.State              (execState)
-import           Data.Binary                      (Binary)
 import           Data.Maybe                       (isNothing)
 import           GHC.Generics                     (Generic)
 import           Gimlight.Actor.Status.Experience (Experience, gainExperience)
@@ -40,8 +39,6 @@ data Status =
     deriving (Show, Ord, Eq, Generic)
 
 makeLenses ''Status
-
-instance Binary Status
 
 status :: Hp -> Int -> Int -> Status
 status h p d = Status h p d E.experience
