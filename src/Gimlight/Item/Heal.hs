@@ -1,21 +1,22 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Gimlight.Item.Heal
-    ( HealHandler
-    , healHandler
+    ( Heal
+    , heal
     , getHealAmount
     ) where
 
-import           GHC.Generics (Generic)
+import           GHC.Generics  (Generic)
+import           Gimlight.Item (Item, getEffect)
 
-newtype HealHandler =
-    HealHandler
+newtype Heal =
+    Heal
         { amount :: Int
         }
     deriving (Show, Ord, Eq, Generic)
 
-healHandler :: Int -> HealHandler
-healHandler = HealHandler
+heal :: Int -> Heal
+heal = Heal
 
-getHealAmount :: HealHandler -> Int
-getHealAmount (HealHandler a) = a
+getHealAmount :: Item Heal -> Int
+getHealAmount = amount . getEffect

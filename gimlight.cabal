@@ -26,6 +26,7 @@ common common
                       , mmorph >= 1.2.0 && < 1.3
                       , monomer >= 1.2.0.0 && < 1.3
                       , mtl >= 2.2.2 && < 2.3
+                      , open-union >= 0.4.0.0 && < 0.5
                       , random >= 1.2.1 && < 1.3
                       , split >= 0.2.3 && < 0.3
                       , string-qq >= 0.0.4 && < 0.1
@@ -48,6 +49,7 @@ Test-Suite spec
                       , Gimlight.Action.MoveSpec
                       , Gimlight.Action.PickUpSpec
                       , Gimlight.Action.WaitSpec
+                      , Gimlight.ActorSpec
                       , Gimlight.Data.ArraySpec
                       , Gimlight.Data.EitherSpec
                       , Gimlight.Data.ListSpec
@@ -63,6 +65,7 @@ Test-Suite spec
                       , Gimlight.SetUp.ImageFile
                       , Gimlight.SetUp.MapFile
                       , Gimlight.SetUp.TileFile
+                      , Gimlight.System.RandomSpec
 
     build-depends:      gimlight
                       , hspec >= 2.9.1 && < 2.10
@@ -104,8 +107,13 @@ library
                       , Gimlight.IndexGenerator
                       , Gimlight.Inventory
                       , Gimlight.Item
+                      , Gimlight.Item.Armor
+                      , Gimlight.Item.Defined
                       , Gimlight.Item.Heal
+                      , Gimlight.Item.SomeItem
+                      , Gimlight.Item.Weapon
                       , Gimlight.Localization.Texts
+                      , Gimlight.System.Random
                       , Gimlight.UI.Draw.Config
 
     other-modules:      Gimlight.Actor.Friendly

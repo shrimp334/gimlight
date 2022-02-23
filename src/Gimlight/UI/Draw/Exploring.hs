@@ -12,11 +12,13 @@ import           Data.Array                      ((!))
 import qualified Data.Map                        as Map
 import           Data.Maybe                      (catMaybes, mapMaybe)
 import           Data.Vector.Storable.ByteString (vectorToByteString)
-import           Gimlight.Actor                  (getCurrentExperiencePoint,
+import           Gimlight.Actor                  (getArmor,
+                                                  getCurrentExperiencePoint,
                                                   getDefence,
                                                   getExperiencePointForNextLevel,
                                                   getHp, getLevel, getMaxHp,
-                                                  getPower, walkingImagePath)
+                                                  getPower, getWeapon,
+                                                  walkingImagePath)
 import           Gimlight.Coord                  (Coord)
 import           Gimlight.Dungeon                (Dungeon, cellMap)
 import           Gimlight.Dungeon.Map.Cell       (exploredMap, lower,
@@ -31,7 +33,8 @@ import           Gimlight.GameStatus.Exploring   (ExploringHandler,
                                                   getCurrentDungeon,
                                                   getMessageLog, getPlayerActor,
                                                   getTileCollection)
-import qualified Gimlight.Item                   as I
+import           Gimlight.Item                   (getName)
+import           Gimlight.Item.SomeItem          (getIconImagePath)
 import           Gimlight.Localization           (getLocalizedText)
 import qualified Gimlight.Localization.Texts     as T
 import           Gimlight.UI.Draw.Config         (logRows, tileColumns,
@@ -93,6 +96,8 @@ statusGrid eh c =
              , label $ "HP: " <> showt (getHp x) <> " / " <> showt (getMaxHp x)
              , label $ atk <> ": " <> showt (getPower x)
              , label $ defence <> ": " <> showt (getDefence x)
+             , label $ wp <> ": " <> wpName x
+             , label $ am <> ": " <> amName x
              ]) $
     getPlayerActor eh
   where
@@ -100,6 +105,11 @@ statusGrid eh c =
     experience = getLocalizedText c T.experience
     atk = getLocalizedText c T.attack
     defence = getLocalizedText c T.defence
+    wp = getLocalizedText c T.weapon
+    am = getLocalizedText c T.armor
+    wpName = itemNameOrEmpty . getWeapon
+    amName = itemNameOrEmpty . getArmor
+    itemNameOrEmpty = maybe mempty (getLocalizedText c . getName)
 
 mapWidget :: ExploringHandler -> GameWidgetNode
 mapWidget eh = vstack rows
@@ -142,7 +152,7 @@ mapItems eh = mapMaybe itemToImage $ positionsAndItems $ d ^. cellMap
   where
     itemToImage (position, item) =
         guard (isItemDrawed position) >>
-        return (image (I.getIconImagePath item) `styleBasic` style position)
+        return (image (getIconImagePath item) `styleBasic` style position)
     isItemDrawed position =
         let displayPosition = itemPositionOnDisplay position
             isVisible = playerFov (d ^. cellMap) ! position

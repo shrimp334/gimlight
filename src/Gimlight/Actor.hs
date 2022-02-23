@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
@@ -29,12 +30,17 @@ module Gimlight.Actor
     , inventoryItems
     , getItems
     , target
+    , equip
+    , getWeapon
+    , getArmor
     ) where
 
+import           Control.Applicative              ((<|>))
 import           Control.Lens                     (makeLenses, (%~), (&), (.~),
-                                                   (^.))
+                                                   (?~), (^.))
 import           Control.Monad.State              (State)
 import           Control.Monad.Writer             (MonadWriter (writer), Writer)
+import           Data.OpenUnion                   (Union, liftUnion, restrict)
 import           Data.Text                        (Text)
 import           GHC.Generics                     (Generic)
 import           Gimlight.Actor.Identifier        (Identifier, toName)
@@ -46,9 +52,15 @@ import           Gimlight.Coord                   (Coord)
 import           Gimlight.GameStatus.Talking.Part (TalkingPart)
 import           Gimlight.IndexGenerator          (Index, IndexGenerator,
                                                    generate)
-import           Gimlight.Inventory               (Inventory, inventory)
+import           Gimlight.Inventory               (Inventory, addItem,
+                                                   inventory)
 import qualified Gimlight.Inventory               as I
 import           Gimlight.Item                    (Item)
+import           Gimlight.Item.Armor              (Armor)
+import qualified Gimlight.Item.Armor              as A
+import           Gimlight.Item.SomeItem           (SomeItem)
+import           Gimlight.Item.Weapon             (Weapon)
+import qualified Gimlight.Item.Weapon             as W
 import           Gimlight.Log                     (MessageLog)
 
 data ActorKind
@@ -69,6 +81,8 @@ data Actor =
         , _standingImagePath :: Text
         , _inventoryItems    :: Inventory
         , _target            :: Maybe Index
+        , _weapon            :: Maybe (Item Weapon)
+        , _armor             :: Maybe (Item Armor)
         }
     deriving (Show, Ord, Eq, Generic)
 
@@ -96,6 +110,8 @@ actor id' st ak talkMessage' walkingImagePath' standingImagePath' = do
             , _actorKind = ak
             , _inventoryItems = inventory 5
             , _target = Nothing
+            , _weapon = Nothing
+            , _armor = Nothing
             }
 
 monster :: Identifier -> Status -> Text -> State IndexGenerator Actor
@@ -164,10 +180,33 @@ getExperiencePointForNextLevel a =
     S.getExperiencePointForNextLevel $ a ^. status
 
 getPower :: Actor -> Int
-getPower a = S.getPower $ a ^. status
+getPower a = S.getPower (a ^. status) + maybe 0 W.getPower (a ^. weapon)
 
 getDefence :: Actor -> Int
-getDefence a = S.getDefence $ a ^. status
+getDefence a = S.getDefence (a ^. status) + maybe 0 A.getDefence (a ^. armor)
 
-getItems :: Actor -> [Item]
+getItems :: Actor -> [SomeItem]
 getItems a = I.getItems $ a ^. inventoryItems
+
+getWeapon :: Actor -> Maybe (Item Weapon)
+getWeapon a = a ^. weapon
+
+getArmor :: Actor -> Maybe (Item Armor)
+getArmor a = a ^. armor
+
+equip :: Union '[ Item Weapon, Item Armor] -> Actor -> Maybe Actor
+equip equipment a = tryEquipWeapon <|> tryEquipArmor
+  where
+    tryEquipWeapon =
+        case (restrict equipment, inventoryWith weapon) of
+            (Right x, Just inv) ->
+                Just $ a & weapon ?~ x & inventoryItems .~ inv
+            _ -> Nothing
+    tryEquipArmor =
+        case (restrict equipment, inventoryWith armor) of
+            (Right x, Just inv) -> Just $ a & armor ?~ x & inventoryItems .~ inv
+            _                   -> Nothing
+    inventoryWith lens =
+        case a ^. lens of
+            Just x  -> addItem (liftUnion x) (a ^. inventoryItems)
+            Nothing -> Just $ a ^. inventoryItems

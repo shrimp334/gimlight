@@ -14,7 +14,7 @@ module Gimlight.GameStatus.SelectingItem
 
 import           GHC.Generics                  (Generic)
 import           Gimlight.GameStatus.Exploring (ExploringHandler)
-import           Gimlight.Item                 (Item)
+import           Gimlight.Item.SomeItem        (SomeItem)
 
 data Reason
     = Drop
@@ -23,7 +23,7 @@ data Reason
 
 data SelectingItemHandler =
     SelectingItemHandler
-        { items     :: [Item]
+        { items     :: [SomeItem]
         , selecting :: Int
         , reason    :: Reason
         , handler   :: ExploringHandler
@@ -31,10 +31,10 @@ data SelectingItemHandler =
     deriving (Show, Ord, Eq, Generic)
 
 selectingItemHandler ::
-       [Item] -> Reason -> ExploringHandler -> SelectingItemHandler
+       [SomeItem] -> Reason -> ExploringHandler -> SelectingItemHandler
 selectingItemHandler is = SelectingItemHandler is 0
 
-getItems :: SelectingItemHandler -> [Item]
+getItems :: SelectingItemHandler -> [SomeItem]
 getItems SelectingItemHandler {items = is} = is
 
 getReason :: SelectingItemHandler -> Reason

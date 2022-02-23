@@ -8,6 +8,7 @@ import qualified Gimlight.Action.MeleeSpec
 import qualified Gimlight.Action.MoveSpec
 import qualified Gimlight.Action.PickUpSpec
 import qualified Gimlight.Action.WaitSpec
+import qualified Gimlight.ActorSpec
 import qualified Gimlight.Data.ArraySpec
 import qualified Gimlight.Data.EitherSpec
 import qualified Gimlight.Data.ListSpec
@@ -18,6 +19,7 @@ import qualified Gimlight.Dungeon.GenerateSpec
 import qualified Gimlight.Dungeon.Map.JSONReaderSpec
 import qualified Gimlight.Dungeon.Map.Tile.JSONReaderSpec
 import qualified Gimlight.FovSpec
+import qualified Gimlight.System.RandomSpec
 import           Test.Hspec                               (Spec, describe,
                                                            hspec)
 
@@ -32,6 +34,7 @@ spec = do
     describe "Gimlight.Action.Move" Gimlight.Action.MoveSpec.spec
     describe "Gimlight.Action.PickUp" Gimlight.Action.PickUpSpec.spec
     describe "Gimlight.Action.Wait" Gimlight.Action.WaitSpec.spec
+    describe "Gimlight.Actor" Gimlight.ActorSpec.spec
     describe "Gimlight.Data.Array" Gimlight.Data.ArraySpec.spec
     describe "Gimlight.Data.Either" Gimlight.Data.EitherSpec.spec
     describe "Gimlight.Data.List" Gimlight.Data.ListSpec.spec
@@ -48,3 +51,4 @@ spec = do
         "Gimlight.Dungeon.Map.Tile.JSONReader"
         Gimlight.Dungeon.Map.Tile.JSONReaderSpec.spec
     describe "Gimlight.Fov" Gimlight.FovSpec.spec
+    describe "Gimlight.System.Random" Gimlight.System.RandomSpec.spec

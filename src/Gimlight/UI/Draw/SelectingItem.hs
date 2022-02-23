@@ -9,7 +9,7 @@ import           Gimlight.GameStatus.SelectingItem (Reason (Drop, Use),
                                                     getExploringHandler,
                                                     getItems, getReason,
                                                     getSelectingIndex)
-import           Gimlight.Item                     (getName)
+import           Gimlight.Item.SomeItem            (getName)
 import           Gimlight.Localization             (MultilingualText,
                                                     getLocalizedText)
 import qualified Gimlight.Localization.Texts       as T

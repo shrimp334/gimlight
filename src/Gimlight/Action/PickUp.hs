@@ -14,7 +14,7 @@ import           Gimlight.Dungeon.Map.Cell   (Error (ItemNotFound),
                                               locateActorAt, removeActorAt,
                                               removeItemAt)
 import           Gimlight.Inventory          (addItem)
-import           Gimlight.Item               (getName)
+import           Gimlight.Item.SomeItem      (getName)
 import qualified Gimlight.Localization.Texts as T
 
 pickUpAction :: Action

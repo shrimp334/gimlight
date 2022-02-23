@@ -10,6 +10,8 @@ module Gimlight.SetUp.CellMap
     , intermediateOrcPosition
     , weakestOrcPosition
     , orcWithHerbPosition
+    , orcWithSwordPosition
+    , orcWithArmorPosition
     ) where
 
 import           Codec.Picture             (PixelRGBA8 (PixelRGBA8),
@@ -19,6 +21,7 @@ import           Control.Monad.State       (State, evalState, execStateT)
 import           Data.Array                (listArray, (//))
 import           Data.Map                  (fromList)
 import           Data.Maybe                (fromJust)
+import           Data.OpenUnion            (liftUnion)
 import           Gimlight.Actor            (Actor, inventoryItems, monster,
                                             player)
 import           Gimlight.Actor.Identifier (Identifier (Orc))
@@ -33,7 +36,8 @@ import           Gimlight.Dungeon.Map.Cell (CellMap, TileIdLayer (TileIdLayer),
 import           Gimlight.Dungeon.Map.Tile (TileCollection, tile)
 import           Gimlight.IndexGenerator   (IndexGenerator, generator)
 import           Gimlight.Inventory        (addItem)
-import           Gimlight.Item             (herb, sampleBook)
+import           Gimlight.Item.Defined     (herb, sampleBook, sword,
+                                            woodenArmor)
 import           Gimlight.UI.Draw.Config   (tileHeight, tileWidth)
 import           Linear.V2                 (V2 (V2))
 
@@ -42,7 +46,7 @@ initCellMap =
     expectRight "Failed to set up the test environment." $
     flip execStateT emptyMap $ do
         mapM_
-            (locateItemAt initTileCollection herb)
+            (locateItemAt initTileCollection (liftUnion herb))
             [playerPosition, orcWithFullItemsPosition]
         mapM_
             (uncurry (locateActorAt initTileCollection))
@@ -53,21 +57,28 @@ initCellMap =
             , (i, intermediateOrcPosition)
             , (w, weakestOrcPosition)
             , (orcWithHerb, orcWithHerbPosition)
+            , (orcWithSword, orcWithSwordPosition)
+            , (orcWithArmor, orcWithArmorPosition)
             ]
   where
     emptyMap =
         cellMap $
         listArray (V2 0 0, V2 (mapWidth - 1) (mapHeight - 1)) (repeat emptyTile) //
         [(V2 0 1, unwalkable)]
-    (p, w, i, s, orcWithoutItems, orcWithFullItems, orcWithHerb) =
-        flip evalState generator $ (,,,,,,) <$>
-        ((inventoryItems %~ fromJust . addItem sampleBook) <$> player) <*>
+    (p, w, i, s, orcWithoutItems, orcWithFullItems, orcWithHerb, orcWithSword, orcWithArmor) =
+        flip evalState generator $ (,,,,,,,,) <$>
+        ((inventoryItems %~ fromJust . addItem (liftUnion sampleBook)) <$>
+         player) <*>
         weakestOrc <*>
         intermediateOrc <*>
         strongestOrc <*>
         orc <*>
-        ((!! 5) . iterate (inventoryItems %~ fromJust . addItem herb) <$> orc) <*>
-        ((inventoryItems %~ fromJust . addItem herb) <$> orc)
+        ((!! 5) .
+         iterate (inventoryItems %~ fromJust . addItem (liftUnion herb)) <$>
+         orc) <*>
+        ((inventoryItems %~ fromJust . addItem (liftUnion herb)) <$> orc) <*>
+        ((inventoryItems %~ fromJust . addItem (liftUnion sword)) <$> orc) <*>
+        ((inventoryItems %~ fromJust . addItem (liftUnion woodenArmor)) <$> orc)
     emptyTile = TileIdLayer Nothing Nothing
     unwalkable = TileIdLayer (Just (dummyTileFile, 1)) Nothing
     mapWidth = 3
@@ -111,6 +122,12 @@ weakestOrcPosition = V2 1 3
 
 orcWithHerbPosition :: Coord
 orcWithHerbPosition = V2 2 1
+
+orcWithSwordPosition :: Coord
+orcWithSwordPosition = V2 2 2
+
+orcWithArmorPosition :: Coord
+orcWithArmorPosition = V2 2 3
 
 dummyTileFile :: FilePath
 dummyTileFile = "dummy.json"

@@ -5,6 +5,8 @@ module Gimlight.Localization.Texts.Status
     , experience
     , attack
     , defence
+    , weapon
+    , armor
     , levelUp
     ) where
 
@@ -22,6 +24,12 @@ attack = multilingualText "Attack" "攻撃"
 
 defence :: MultilingualText
 defence = multilingualText "Defence" "防御"
+
+weapon :: MultilingualText
+weapon = multilingualText "Weapon" "武具"
+
+armor :: MultilingualText
+armor = multilingualText "Armor" "防具"
 
 levelUp :: MultilingualText -> Int -> MultilingualText
 levelUp who n =

@@ -50,7 +50,7 @@ import           Gimlight.Coord            (Coord)
 import           Gimlight.Dungeon.Map.Tile (TileCollection, TileId)
 import qualified Gimlight.Dungeon.Map.Tile as Tile
 import           Gimlight.Fov              (calculateFov)
-import           Gimlight.Item             (Item)
+import           Gimlight.Item.SomeItem    (SomeItem)
 import           Linear.V2                 (V2 (V2))
 
 data Error
@@ -58,7 +58,7 @@ data Error
     | ActorNotFound
     | ActorAlreadyExists Actor
     | ItemNotFound
-    | ItemAlreadyExists Item
+    | ItemAlreadyExists SomeItem
     | TileIsNotWalkable
     deriving (Show)
 
@@ -75,7 +75,7 @@ data Cell =
     Cell
         { _tileIdLayer       :: TileIdLayer
         , _actor             :: Maybe Actor
-        , _item              :: Maybe Item
+        , _item              :: Maybe SomeItem
         , _explored          :: Bool
         , _visibleFromPlayer :: Bool
         }
@@ -108,7 +108,7 @@ locateActor tc a c
             Just x  -> Left $ ActorAlreadyExists x
             Nothing -> Right $ c & actor ?~ a
 
-locateItem :: TileCollection -> Item -> Cell -> Either Error Cell
+locateItem :: TileCollection -> SomeItem -> Cell -> Either Error Cell
 locateItem tc i c
     | not $ isTileWalkable tc c = Left TileIsNotWalkable
     | otherwise =
@@ -120,7 +120,7 @@ removeActor :: Cell -> Either Error (Actor, Cell)
 removeActor c =
     fmap (, c & actor .~ Nothing) . maybeToRight ActorNotFound $ c ^. actor
 
-removeItem :: Cell -> Either Error (Item, Cell)
+removeItem :: Cell -> Either Error (SomeItem, Cell)
 removeItem c =
     fmap (, c & item .~ Nothing) . maybeToRight ItemNotFound $ c ^. item
 
@@ -178,7 +178,7 @@ positionsAndActors = mapMaybe mapStep . assocs
   where
     mapStep (coord, cell) = (coord, ) <$> cell ^. actor
 
-positionsAndItems :: CellMap -> [(Coord, Item)]
+positionsAndItems :: CellMap -> [(Coord, SomeItem)]
 positionsAndItems = mapMaybe mapStep . assocs
   where
     mapStep (coord, cell) = (coord, ) <$> cell ^. item
@@ -189,7 +189,7 @@ locateActorAt tc a c =
     StateT $ \cm -> fmap ((), ) $ cm & ix c %%~ locateActor tc a
 
 locateItemAt ::
-       TileCollection -> Item -> Coord -> StateT CellMap (Either Error) ()
+       TileCollection -> SomeItem -> Coord -> StateT CellMap (Either Error) ()
 locateItemAt tc i c =
     StateT $ \cm -> fmap ((), ) $ cm & ix c %%~ locateItem tc i
 
@@ -199,7 +199,7 @@ removeActorAt c =
         maybeToRight OutOfRange (cm ^? ix c) >>= removeActor <&>
         second (\cell -> cm // [(c, cell)])
 
-removeItemAt :: Coord -> StateT CellMap (Either Error) Item
+removeItemAt :: Coord -> StateT CellMap (Either Error) SomeItem
 removeItemAt c =
     StateT $ \cm ->
         maybeToRight OutOfRange (cm ^? ix c) >>= removeItem <&>

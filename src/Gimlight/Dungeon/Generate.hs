@@ -7,8 +7,7 @@ module Gimlight.Dungeon.Generate
 import           Control.Lens                     (Ixed (ix), _2, _Just, view,
                                                    (&), (.~), (?~), (^.), (^?))
 import           Control.Monad.Morph              (MFunctor (hoist), generalize)
-import           Control.Monad.State              (MonadState (get, put),
-                                                   MonadTrans (lift), State,
+import           Control.Monad.State              (MonadTrans (lift), State,
                                                    StateT, execStateT)
 import           Data.Array                       (listArray, (!))
 import           Data.Bits                        (Bits (bit, complement, (.&.), (.|.)))
@@ -16,6 +15,7 @@ import           Data.Either                      (fromRight)
 import           Data.Foldable                    (foldlM)
 import           Data.List                        (elemIndex)
 import           Data.Maybe                       (isNothing)
+import           Data.OpenUnion                   (liftUnion)
 import           Data.Tree                        (Tree (Node, rootLabel, subForest))
 import           Gimlight.Actor                   (Actor)
 import           Gimlight.Actor.Monsters          (orc, troll)
@@ -46,14 +46,16 @@ import           Gimlight.Dungeon.Map.Tile        (TileCollection, TileId,
                                                    TileIndex)
 import           Gimlight.Dungeon.Stairs          (StairsPair (StairsPair))
 import           Gimlight.IndexGenerator          (IndexGenerator)
-import           Gimlight.Item                    (herb, sampleBook)
+import           Gimlight.Item.Defined            (herb, sampleBook, sword,
+                                                   woodenArmor)
+import           Gimlight.System.Random           (choiceST, randomRST,
+                                                   randomST)
 import           Gimlight.TreeZipper              (TreeZipper, appendNode,
                                                    getFocused, goDownBy,
                                                    goToRootAndGetTree, modify,
                                                    treeZipper)
 import           Linear.V2                        (V2 (..), _x, _y)
-import           System.Random                    (Random (randomR), RandomGen,
-                                                   StdGen, random)
+import           System.Random                    (StdGen)
 
 generateMultipleFloorsDungeon ::
        TileCollection
@@ -254,14 +256,17 @@ placeItems cm _ _ 0 = return cm
 placeItems cm tc r n = do
     x <- randomRST (x1 r, x2 r - 1)
     y <- randomRST (y1 r, y2 r - 1)
-    prob <- randomST :: State StdGen Float
-    let newItem =
-            if prob < 0.8
-                then herb
-                else sampleBook
-        newMap =
+    newItem <- choiceST items
+    let newMap =
             fromRight cm $ flip execStateT cm $ locateItemAt tc newItem (V2 x y)
     placeItems newMap tc r (n - 1)
+  where
+    items =
+        [ liftUnion herb
+        , liftUnion sampleBook
+        , liftUnion sword
+        , liftUnion woodenArmor
+        ]
 
 newMonster :: StateT IndexGenerator (State StdGen) Actor
 newMonster = do
@@ -270,20 +275,6 @@ newMonster = do
         if r < 0.8
             then orc
             else troll
-
-randomRST :: (Random a, RandomGen g) => (a, a) -> State g a
-randomRST r = do
-    g <- get
-    let (v, g') = randomR r g
-    put g'
-    return v
-
-randomST :: (RandomGen g, Random a) => State g a
-randomST = do
-    g <- get
-    let (v, g') = random g
-    put g'
-    return v
 
 initialTile :: Config -> TileIdLayer
 initialTile cfg = TileIdLayer u l

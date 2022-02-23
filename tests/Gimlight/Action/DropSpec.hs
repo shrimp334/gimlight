@@ -8,6 +8,7 @@ import           Control.Lens                ((%~), (&))
 import           Control.Monad.State         (execStateT)
 import           Control.Monad.Trans.Writer  (writer)
 import           Data.Either.Combinators     (fromRight')
+import           Data.OpenUnion              (liftUnion)
 import           Gimlight.Action             (ActionResult (ActionResult, killed, newCellMap, status),
                                               ActionStatus (Failed, Ok))
 import           Gimlight.Action.Drop        (dropAction)
@@ -15,7 +16,8 @@ import           Gimlight.Actor              (inventoryItems)
 import           Gimlight.Dungeon.Map.Cell   (locateActorAt, locateItemAt,
                                               removeActorAt)
 import           Gimlight.Inventory          (removeNthItem)
-import           Gimlight.Item               (getName, herb)
+import           Gimlight.Item               (getName)
+import           Gimlight.Item.Defined       (herb)
 import qualified Gimlight.Localization.Texts as T
 import           Gimlight.SetUp.CellMap      (initCellMap, initTileCollection,
                                               orcWithFullItemsPosition,
@@ -45,7 +47,7 @@ testDropItemSuccessfully =
                 initTileCollection
                 (a & inventoryItems %~ (snd . removeNthItem 0))
                 orcWithHerbPosition
-            locateItemAt initTileCollection herb orcWithHerbPosition
+            locateItemAt initTileCollection (liftUnion herb) orcWithHerbPosition
     expectedLog = [T.youDropped $ getName herb]
 
 testItemAlreadyExists :: Spec

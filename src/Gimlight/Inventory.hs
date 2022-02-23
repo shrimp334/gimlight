@@ -9,13 +9,13 @@ module Gimlight.Inventory
     , removeNthItem
     ) where
 
-import           Control.Lens  (makeLenses, (%~), (&), (.~), (^.))
-import           GHC.Generics  (Generic)
-import           Gimlight.Item (Item)
+import           Control.Lens           (makeLenses, (%~), (&), (.~), (^.))
+import           GHC.Generics           (Generic)
+import           Gimlight.Item.SomeItem (SomeItem)
 
 data Inventory =
     Inventory
-        { _items    :: [Item]
+        { _items    :: [SomeItem]
         , _maxItems :: Int
         }
     deriving (Show, Ord, Eq, Generic)
@@ -25,16 +25,16 @@ makeLenses ''Inventory
 inventory :: Int -> Inventory
 inventory n = Inventory {_items = [], _maxItems = n}
 
-addItem :: Item -> Inventory -> Maybe Inventory
+addItem :: SomeItem -> Inventory -> Maybe Inventory
 addItem item inv =
     if length (inv ^. items) == inv ^. maxItems
         then Nothing
         else Just $ inv & items %~ (:) item
 
-getItems :: Inventory -> [Item]
+getItems :: Inventory -> [SomeItem]
 getItems inv = inv ^. items
 
-removeNthItem :: Int -> Inventory -> (Maybe Item, Inventory)
+removeNthItem :: Int -> Inventory -> (Maybe SomeItem, Inventory)
 removeNthItem n e =
     if n < e ^. maxItems
         then (Just removedItem, e & items .~ newItems)
