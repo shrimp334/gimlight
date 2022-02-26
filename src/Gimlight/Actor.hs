@@ -53,7 +53,7 @@ import           Gimlight.GameStatus.Talking.Part (TalkingPart)
 import           Gimlight.IndexGenerator          (Index, IndexGenerator,
                                                    generate)
 import           Gimlight.Inventory               (Inventory, addItem,
-                                                   inventory)
+                                                   inventory, maxSlot)
 import qualified Gimlight.Inventory               as I
 import           Gimlight.Item                    (Item)
 import           Gimlight.Item.Armor              (Armor)
@@ -108,7 +108,7 @@ actor id' st ak talkMessage' walkingImagePath' standingImagePath' = do
             , _walkingImagePath = walkingImagePath'
             , _standingImagePath = standingImagePath'
             , _actorKind = ak
-            , _inventoryItems = inventory 5
+            , _inventoryItems = inventory maxSlot
             , _target = Nothing
             , _weapon = Nothing
             , _armor = Nothing

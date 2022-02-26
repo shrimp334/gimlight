@@ -28,6 +28,7 @@ module Gimlight.Dungeon.Map.Cell
     , removeActorAt
     , removeItemAt
     , removeActorIf
+    , mapActorAt
     , positionsAndActors
     , positionsAndItems
     , tileIdLayerAt
@@ -210,6 +211,15 @@ removeActorIf f =
     gets (fmap fst . find (f . snd) . positionsAndActors) >>= lift .
     maybeToRight ActorNotFound >>=
     removeActorAt
+
+mapActorAt ::
+       TileCollection
+    -> Coord
+    -> (Actor -> Actor)
+    -> StateT CellMap (Either Error) ()
+mapActorAt tc p f = do
+    a <- removeActorAt p
+    locateActorAt tc (f a) p
 
 tileIdLayerAt :: Coord -> CellMap -> Maybe TileIdLayer
 tileIdLayerAt c = preview (ix c . tileIdLayer)

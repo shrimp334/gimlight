@@ -49,6 +49,7 @@ Test-Suite spec
                       , Gimlight.Action.MoveSpec
                       , Gimlight.Action.PickUpSpec
                       , Gimlight.Action.WaitSpec
+                      , Gimlight.ActionSpec
                       , Gimlight.ActorSpec
                       , Gimlight.Data.ArraySpec
                       , Gimlight.Data.EitherSpec
@@ -57,11 +58,12 @@ Test-Suite spec
                       , Gimlight.Data.StringSpec
                       , Gimlight.Dungeon.GenerateSpec
                       , Gimlight.Dungeon.Generate.ConfigSpec
+                      , Gimlight.Dungeon.Map.CellSpec
                       , Gimlight.Dungeon.Map.JSONReaderSpec
+                      , Gimlight.Dungeon.Map.TileSpec
                       , Gimlight.Dungeon.Map.Tile.JSONReaderSpec
                       , Gimlight.FovSpec
                       , Gimlight.Generator
-                      , Gimlight.SetUp.CellMap
                       , Gimlight.SetUp.ImageFile
                       , Gimlight.SetUp.MapFile
                       , Gimlight.SetUp.TileFile
@@ -108,11 +110,13 @@ library
                       , Gimlight.Inventory
                       , Gimlight.Item
                       , Gimlight.Item.Armor
+                      , Gimlight.Item.Book
                       , Gimlight.Item.Defined
                       , Gimlight.Item.Heal
                       , Gimlight.Item.SomeItem
                       , Gimlight.Item.Weapon
                       , Gimlight.Localization.Texts
+                      , Gimlight.Log
                       , Gimlight.System.Random
                       , Gimlight.UI.Draw.Config
 
@@ -136,7 +140,6 @@ library
                       , Gimlight.GameStatus.SelectingItem
                       , Gimlight.GameStatus.Talking
                       , Gimlight.GameStatus.Talking.Part
-                      , Gimlight.Item.Book
                       , Gimlight.Localization
                       , Gimlight.Localization.Texts.Actions
                       , Gimlight.Localization.Texts.Actors
@@ -146,7 +149,6 @@ library
                       , Gimlight.Localization.Texts.Scene
                       , Gimlight.Localization.Texts.Status
                       , Gimlight.Localization.Texts.Title
-                      , Gimlight.Log
                       , Gimlight.NpcBehavior
                       , Gimlight.Player
                       , Gimlight.Quest

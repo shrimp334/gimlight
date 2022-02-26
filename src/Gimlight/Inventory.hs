@@ -7,6 +7,7 @@ module Gimlight.Inventory
     , addItem
     , getItems
     , removeNthItem
+    , maxSlot
     ) where
 
 import           Control.Lens           (makeLenses, (%~), (&), (.~), (^.))
@@ -42,3 +43,6 @@ removeNthItem n e =
   where
     newItems = take n (e ^. items) ++ drop (n + 1) (e ^. items)
     removedItem = (e ^. items) !! n
+
+maxSlot :: Int
+maxSlot = 5

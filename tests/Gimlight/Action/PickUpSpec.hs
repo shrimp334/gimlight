@@ -1,28 +1,32 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs     #-}
+
 module Gimlight.Action.PickUpSpec
     ( spec
     ) where
 
-import           Control.Lens                ((%~), (&))
-import           Control.Monad.State         (StateT (runStateT), execStateT)
-import           Control.Monad.Writer        (writer)
-import           Data.Maybe                  (fromJust)
-import           Data.OpenUnion              (liftUnion)
-import           Gimlight.Action             (ActionResult (ActionResult, killed, newCellMap, status),
-                                              ActionStatus (Failed, Ok))
-import           Gimlight.Action.PickUp      (pickUpAction)
-import           Gimlight.Actor              (inventoryItems)
-import           Gimlight.Data.Either        (expectRight)
-import           Gimlight.Dungeon.Map.Cell   (locateActorAt, removeActorAt,
-                                              removeItemAt)
-import           Gimlight.Inventory          (addItem)
-import           Gimlight.Item               (getName)
-import           Gimlight.Item.Defined       (herb)
-import qualified Gimlight.Localization.Texts as T
-import           Gimlight.SetUp.CellMap      (initCellMap, initTileCollection,
-                                              orcWithFullItemsPosition,
-                                              orcWithoutItemsPosition,
-                                              playerPosition)
-import           Test.Hspec                  (Spec, it, shouldBe)
+import           Control.Monad.State           (evalState, execStateT)
+import           Control.Monad.Writer          (writer)
+import           Data.Either.Combinators       (fromRight')
+import           Data.OpenUnion                (Union, liftUnion)
+import           Gimlight.Action               (ActionResultWithLog)
+import           Gimlight.Action.PickUp        (pickUpAction)
+import           Gimlight.ActionSpec           (failedResult, okResult)
+import           Gimlight.Actor                (Actor)
+import qualified Gimlight.Actor                as A
+import           Gimlight.ActorSpec            (addItems)
+import           Gimlight.Coord                (Coord)
+import           Gimlight.Dungeon.Map.Cell     (CellMap, mapActorAt,
+                                                removeItemAt)
+import           Gimlight.Dungeon.Map.CellSpec (emptyCellMap, locateItemsActors)
+import           Gimlight.Dungeon.Map.TileSpec (mockTileCollection)
+import           Gimlight.IndexGenerator       (generator)
+import           Gimlight.Inventory            (maxSlot)
+import           Gimlight.Item.Defined         (herb)
+import           Gimlight.Item.SomeItem        (SomeItem)
+import qualified Gimlight.Localization.Texts   as T
+import           Linear                        (V2 (V2))
+import           Test.Hspec                    (Spec, it, shouldBe)
 
 spec :: Spec
 spec = do
@@ -33,45 +37,52 @@ spec = do
 testPickUpSuccess :: Spec
 testPickUpSuccess =
     it "returns a Ok result if there is an item at the actor's foot, and player's inventory is not full." $
-    result `shouldBe` expected
+    result cm `shouldBe` expected
   where
-    result = pickUpAction playerPosition initTileCollection initCellMap
-    expected = writer (expectedResult, expectedLog)
-    expectedResult =
-        ActionResult
-            {status = Ok, newCellMap = cellMapAfterPickingUp, killed = []}
+    expected = writer (okResult cellMapAfterPickingUp, [T.youGotItem T.herb])
     cellMapAfterPickingUp =
-        expectRight "Failed to pick up." $
-        flip execStateT initCellMap $ do
-            _ <- removeItemAt playerPosition
-            _ <- removeActorAt playerPosition
-            locateActorAt initTileCollection actorWithItem playerPosition
-    expectedLog = [T.youGotItem $ getName herb]
-    actorWithItem =
-        (\(x, _) -> x & inventoryItems %~ (fromJust . addItem (liftUnion herb)))
-            (expectRight
-                 "Failed to add an item."
-                 (flip runStateT initCellMap $ removeActorAt playerPosition))
+        fromRight' $
+        flip execStateT cm $ do
+            _ <- removeItemAt playerPos
+            mapActorAt mockTileCollection playerPos (addItems [liftUnion herb])
+    cm =
+        cellMapWith
+            [ (playerPos, liftUnion (liftUnion herb :: SomeItem))
+            , (playerPos, liftUnion player)
+            ]
 
 testPickUpVoid :: Spec
 testPickUpVoid =
     it "returns a Failed result if there is no item at the actor's foot." $
-    result `shouldBe` expected
+    result cm `shouldBe` expected
   where
-    result = pickUpAction orcWithoutItemsPosition initTileCollection initCellMap
-    expected = writer (expectedResult, expectedLog)
-    expectedResult =
-        ActionResult {status = Failed, newCellMap = initCellMap, killed = []}
-    expectedLog = [T.youGotNothing]
+    expected = writer (failedResult cm, [T.youGotNothing])
+    cm = cellMapWith [(playerPos, liftUnion player)]
 
 testPickUpWhenInventoryIsFull :: Spec
 testPickUpWhenInventoryIsFull =
     it "returns a Failed result if the actor's inventory is full." $
-    result `shouldBe` expected
+    result cm `shouldBe` expected
   where
-    result =
-        pickUpAction orcWithFullItemsPosition initTileCollection initCellMap
-    expected = writer (expectedResult, expectedLog)
-    expectedResult =
-        ActionResult {status = Failed, newCellMap = initCellMap, killed = []}
-    expectedLog = [T.bagIsFull]
+    expected = writer (failedResult cm, [T.bagIsFull])
+    cm =
+        cellMapWith
+            [ (playerPos, liftUnion (liftUnion herb :: SomeItem))
+            , (playerPos, liftUnion $ addItems items player)
+            ]
+    items = replicate maxSlot $ liftUnion herb
+
+result :: CellMap -> ActionResultWithLog
+result = pickUpAction playerPos mockTileCollection
+
+cellMapWith :: [(Coord, Union '[ Actor, SomeItem])] -> CellMap
+cellMapWith xs = locateItemsActors xs testMap
+
+testMap :: CellMap
+testMap = emptyCellMap $ V2 1 1
+
+player :: Actor
+player = evalState A.player generator
+
+playerPos :: Coord
+playerPos = V2 0 0
