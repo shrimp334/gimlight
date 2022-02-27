@@ -35,12 +35,10 @@ drawScene :: SceneHandler -> GameConfig -> GameWidgetNode
 drawScene sh c =
     withKeyEvents $
     zstack
-        [ image $ getBackgroundImagePath sh
-        , box_ [alignBottom] (drawText sh c) `styleBasic` [height 10]
-        ]
+        [image $ getBackgroundImagePath sh, box_ [alignBottom] (drawText sh c)]
 
 drawText :: SceneHandler -> GameConfig -> GameWidgetNode
-drawText sh c = container inner `styleBasic` [height 200]
+drawText sh c = container inner
   where
     container = fixToBottom . shadeBox . fadeInOut . box_ [alignTop, alignLeft]
     inner =
@@ -53,7 +51,7 @@ shadeBox content =
     zstack [filler `styleBasic` [bgColor $ black & L.a .~ 0.5], content]
 
 fixToBottom :: WidgetNode s e -> WidgetNode s e
-fixToBottom content = vstack [filler, content]
+fixToBottom content = vstack [filler, content `styleBasic` [height 150]]
 
 fadeInOut :: WidgetNode s AppEvent -> WidgetNode s AppEvent
 fadeInOut content = outer
