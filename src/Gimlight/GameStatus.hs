@@ -30,8 +30,7 @@ import           Gimlight.GameStatus.Scene             (SceneHandler,
 import           Gimlight.GameStatus.SelectingItem     (SelectingItemHandler)
 import           Gimlight.GameStatus.Talking           (TalkingHandler)
 import           Gimlight.IndexGenerator               (generator)
-import qualified Gimlight.Localization.Texts.Scene     as T (title1, title2,
-                                                             welcome)
+import qualified Gimlight.Localization.Texts.Scene     as T (title, welcome)
 import qualified Gimlight.Log                          as L
 import           Gimlight.Quest                        (questCollection)
 import           Gimlight.TreeZipper                   (appendTree, goDownBy,
@@ -85,5 +84,5 @@ newGameStatus = do
     return . Scene $
         sceneHandler
             "images/game_opening.png"
-            (fromList [withoutSpeaker T.title1, withoutSpeaker T.title2])
+            (fromList $ fmap withoutSpeaker T.title)
             initExploring
