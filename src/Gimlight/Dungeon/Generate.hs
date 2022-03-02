@@ -230,7 +230,7 @@ createRoom room = flip (foldl removeTileAt) coords
         [V2 x y | x <- [x1 room .. x2 room - 1], y <- [y1 room .. y2 room - 1]]
 
 tunnelBetween :: Coord -> Coord -> CellMap -> CellMap
-tunnelBetween start end d = createRoom path1 $ createRoom path2 d
+tunnelBetween start end = createRoom path1 . createRoom path2
   where
     path1 = roomFromTwoPositionInclusive start corner
     path2 = roomFromTwoPositionInclusive corner end
