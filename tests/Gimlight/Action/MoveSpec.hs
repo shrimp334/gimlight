@@ -28,6 +28,7 @@ spec = do
     testMoveSucceed
     testTriedToMoveToUnwalkablePlace
     testTriedToMoveWhereActorExists
+    testTriedToMoveOutsideOfMap
 
 testMoveSucceed :: Spec
 testMoveSucceed =
@@ -47,6 +48,12 @@ testTriedToMoveWhereActorExists :: Spec
 testTriedToMoveWhereActorExists =
     it "fails to move because there is an actor on the destination." $
     resultWhenMoveOffsetTo (V2 1 0) `shouldBe`
+    failed
+
+testTriedToMoveOutsideOfMap :: Spec
+testTriedToMoveOutsideOfMap =
+    it "fails to move because the actor tried to move to the outside of the map." $
+    resultWhenMoveOffsetTo (V2 (-1) 0) `shouldBe`
     failed
 
 succeed :: V2 Int -> ActionResultWithLog

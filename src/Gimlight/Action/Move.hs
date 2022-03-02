@@ -7,7 +7,7 @@ import           Control.Monad.Writer        (tell)
 import           Gimlight.Action             (Action,
                                               ActionResult (ActionResult),
                                               ActionStatus (Failed, Ok))
-import           Gimlight.Dungeon.Map.Cell   (Error (ActorAlreadyExists, TileIsNotWalkable),
+import           Gimlight.Dungeon.Map.Cell   (Error (ActorAlreadyExists, OutOfRange, TileIsNotWalkable),
                                               locateActorAt, removeActorAt)
 import qualified Gimlight.Localization.Texts as T
 import           Linear.V2                   (V2)
@@ -18,6 +18,7 @@ moveAction offset position tiles cm =
         Right x                     -> return $ ActionResult Ok x []
         Left (ActorAlreadyExists _) -> cannotMove
         Left TileIsNotWalkable      -> cannotMove
+        Left OutOfRange             -> cannotMove
         _                           -> error "Unreachable."
   where
     result =
