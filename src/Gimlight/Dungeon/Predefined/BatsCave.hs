@@ -19,4 +19,4 @@ batsDungeon ::
     -> StateT IndexGenerator (State StdGen) (Tree Dungeon, Coord)
 batsDungeon ts = generateMultipleFloorsDungeon ts cfg BatsCave
   where
-    cfg = config 3 10 5 8 (V2 50 50) "tiles/cave.json"
+    cfg = config 3 10 (V2 5 8) (V2 50 50) "tiles/cave.json"

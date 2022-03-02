@@ -40,7 +40,7 @@ spec = do
             tilesOf upper result `shouldBe` tilesOf upper expected
   where
     tilesOf layer = fmap (view (tileIdLayer . layer))
-    cfg = config 1 10 3 3 (V2 10 10) tileFileForGeneration
+    cfg = config 1 10 (V2 3 3) (V2 10 10) tileFileForGeneration
 
 generateSingleMap :: TileCollection -> Config -> Int -> CellMap
 generateSingleMap tc cfg g =
