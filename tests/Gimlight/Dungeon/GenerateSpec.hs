@@ -2,7 +2,7 @@ module Gimlight.Dungeon.GenerateSpec
     ( spec
     ) where
 
-import           Control.Lens                         (_1, view, (^.))
+import           Control.Lens                         (view, (^.))
 import           Control.Monad.State                  (State, StateT, evalState,
                                                        evalStateT)
 import           Data.Tree                            (Tree (Node))
@@ -13,8 +13,9 @@ import           Gimlight.Dungeon.Generate            (generateMultipleFloorsDun
 import           Gimlight.Dungeon.Generate.Config     (Config, config,
                                                        getTileFilePath)
 import           Gimlight.Dungeon.Identifier          (Identifier (Beaeve))
-import           Gimlight.Dungeon.Map.Cell            (CellMap, lower,
-                                                       tileIdLayer, upper)
+import           Gimlight.Dungeon.Map.Cell            (CellMap, actorExists,
+                                                       lower, tileIdLayer,
+                                                       upper)
 import           Gimlight.Dungeon.Map.JSONReader      (readMapFile)
 import           Gimlight.Dungeon.Map.Tile            (TileCollection)
 import           Gimlight.Dungeon.Map.Tile.JSONReader (readTileFileRecursive)
@@ -26,6 +27,7 @@ import           System.Random                        (StdGen, mkStdGen)
 import           Test.Hspec                           (Spec, describe, it,
                                                        runIO, shouldBe,
                                                        shouldSatisfy)
+import           Test.Hspec.QuickCheck                (prop)
 
 spec :: Spec
 spec = do
@@ -38,8 +40,23 @@ spec = do
             all (== Just (getTileFilePath cfg, 0))
         it "generates the upper layer." $
             tilesOf upper result `shouldBe` tilesOf upper expected
+        testNoActorExistsOnUpStairs tc
   where
     tilesOf layer = fmap (view (tileIdLayer . layer))
+    cfg = config 1 10 (V2 3 3) (V2 10 10) tileFileForGeneration
+
+testNoActorExistsOnUpStairs :: TileCollection -> Spec
+testNoActorExistsOnUpStairs tc =
+    prop "does not locate an actor at the upstairs." $ \g ->
+        let (d, c) = toDungeon g
+         in not $ actorExists c (d ^. D.cellMap)
+  where
+    toDungeon g =
+        let (Node d _, c) = tree (mkStdGen g)
+         in (d, c)
+    tree g =
+        extractDungeonTreeAndAscendingStairsPosition g $
+        generateMultipleFloorsDungeon tc cfg Beaeve
     cfg = config 1 10 (V2 3 3) (V2 10 10) tileFileForGeneration
 
 generateSingleMap :: TileCollection -> Config -> Int -> CellMap
@@ -58,4 +75,11 @@ extractDungeonTree ::
        StdGen
     -> StateT IndexGenerator (State StdGen) (Tree Dungeon, Coord)
     -> Tree Dungeon
-extractDungeonTree g = (^. _1) . flip evalState g . flip evalStateT generator
+extractDungeonTree g = fst . extractDungeonTreeAndAscendingStairsPosition g
+
+extractDungeonTreeAndAscendingStairsPosition ::
+       StdGen
+    -> StateT IndexGenerator (State StdGen) (Tree Dungeon, Coord)
+    -> (Tree Dungeon, Coord)
+extractDungeonTreeAndAscendingStairsPosition g =
+    flip evalState g . flip evalStateT generator

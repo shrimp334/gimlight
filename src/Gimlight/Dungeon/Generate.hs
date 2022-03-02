@@ -63,9 +63,11 @@ generateMultipleFloorsDungeon ::
     -> Identifier
     -> StateT IndexGenerator (State StdGen) (Tree Dungeon, Coord)
 generateMultipleFloorsDungeon ts cfg ident = do
-    (firstFloor, ascendingStairsInFirstFloor) <- generateDungeon ts cfg ident
+    (firstFloor, _) <- generateDungeon ts cfg ident
     let treeWithFirstFloor = Node {rootLabel = firstFloor, subForest = []}
         zipperWithFirstFloor = treeZipper treeWithFirstFloor
+        ascendingStairsInFirstFloor =
+            head $ stairsPositionCandidates ts firstFloor
     dungeonZipper <-
         foldlM
             (\dacc _ -> generateDungeonAndAppend dacc ts cfg ident)

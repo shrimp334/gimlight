@@ -32,6 +32,7 @@ module Gimlight.Dungeon.Map.Cell
     , positionsAndActors
     , positionsAndItems
     , tileIdLayerAt
+    , actorExists
     ) where
 
 import           Control.Lens              (Ixed (ix), Traversal', makeLenses,
@@ -223,3 +224,9 @@ mapActorAt tc p f = do
 
 tileIdLayerAt :: Coord -> CellMap -> Maybe TileIdLayer
 tileIdLayerAt c = preview (ix c . tileIdLayer)
+
+actorExists :: Coord -> CellMap -> Bool
+actorExists c cm =
+    case cm ^? ix c . actor of
+        Just (Just _) -> True
+        _             -> False

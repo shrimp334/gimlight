@@ -104,6 +104,7 @@ library
                       , Gimlight.Dungeon.Map.JSONReader
                       , Gimlight.Dungeon.Map.Tile
                       , Gimlight.Dungeon.Map.Tile.JSONReader
+                      , Gimlight.Dungeon.Stairs
                       , Gimlight.Fov
                       , Gimlight.Game
                       , Gimlight.IndexGenerator
@@ -129,7 +130,6 @@ library
                       , Gimlight.Dungeon.Predefined.BatsCave
                       , Gimlight.Dungeon.Predefined.Beaeve
                       , Gimlight.Dungeon.Predefined.GlobalMap
-                      , Gimlight.Dungeon.Stairs
                       , Gimlight.GameConfig
                       , Gimlight.GameModel
                       , Gimlight.GameStatus
