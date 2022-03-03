@@ -29,9 +29,9 @@ heading :: Text -> GameWidgetNode
 heading text = label text `styleBasic` headingStyle
 
 selections :: Int -> [Text] -> GameWidgetNode
-selections selecting texts = vstack $ toLabel <$> zip texts [0 ..]
+selections selecting = vstack . fmap toLabel . zip [0 ..]
   where
-    toLabel (text, idx)
+    toLabel (idx, text)
         | idx == selecting = boldText text
         | otherwise = normalText text
 
