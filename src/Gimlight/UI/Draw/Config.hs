@@ -8,20 +8,23 @@ module Gimlight.UI.Draw.Config
     , windowHeight
     ) where
 
-tileWidth, tileHeight :: Int
+tileWidth :: Int
 tileWidth = 48
 
+tileHeight :: Int
 tileHeight = 48
 
-tileColumns, tileRows :: Int
+tileColumns :: Int
 tileColumns = 23
 
+tileRows :: Int
 tileRows = 13
 
 logRows :: Int
 logRows = 5
 
-windowWidth, windowHeight :: Int
+windowWidth :: Int
 windowWidth = 1280
 
+windowHeight :: Int
 windowHeight = 720
