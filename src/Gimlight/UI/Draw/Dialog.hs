@@ -5,6 +5,8 @@ module Gimlight.UI.Draw.Dialog
     , normalText
     , boldText
     , dialogStyle
+    , boldTextStyle
+    , normalTextStyle
     ) where
 
 import           Data.Text              (Text)
