@@ -2,14 +2,16 @@ module Gimlight.Dungeon.GenerateSpec
     ( spec
     ) where
 
-import           Control.Lens                         (view, (^.))
+import           Control.Lens                         (Ixed (ix), view, (^.),
+                                                       (^?))
 import           Control.Monad.State                  (State, StateT, evalState,
                                                        evalStateT)
 import           Data.Tree                            (Tree (Node))
 import           Gimlight.Coord                       (Coord)
 import           Gimlight.Dungeon                     (Dungeon)
 import qualified Gimlight.Dungeon                     as D
-import           Gimlight.Dungeon.Generate            (generateMultipleFloorsDungeon)
+import           Gimlight.Dungeon.Generate            (generateMultipleFloorsDungeon,
+                                                       upStairsIndex)
 import           Gimlight.Dungeon.Generate.Config     (Config, config,
                                                        getTileFilePath)
 import           Gimlight.Dungeon.Identifier          (Identifier (Beaeve))
@@ -33,49 +35,44 @@ spec :: Spec
 spec = do
     tc <- runIO $ readTileFileRecursive "tests/tiles/valid/"
     expected <- runIO $ readMapFile "tests/maps/generate/seed_0.json"
-    let result = generateSingleMap tc cfg 0
+    let result = generateSingleMap 0 tc
     describe "generateMultipleFloorsDungeon" $ do
-        it "fills the lower layer with the floor tile." $
-            tilesOf lower result `shouldSatisfy`
+        it "fills the lower layer with the floor tile." $ tilesOf lower result `shouldSatisfy`
             all (== Just (getTileFilePath cfg, 0))
-        it "generates the upper layer." $
-            tilesOf upper result `shouldBe` tilesOf upper expected
+        it "generates the upper layer." $ tilesOf upper result `shouldBe`
+            tilesOf upper expected
         testNoActorExistsOnUpStairs tc
+        testUpstairsIsOnCorrectPosition tc
   where
     tilesOf layer = fmap (view (tileIdLayer . layer))
-    cfg = config 1 10 (V2 3 3) (V2 10 10) tileFileForGeneration
+
+testUpstairsIsOnCorrectPosition :: TileCollection -> Spec
+testUpstairsIsOnCorrectPosition tc =
+    prop "upstairs appears on the correct position." $ \g ->
+        let (d, c) = generateDungeonAndUpStairsPosition g tc
+         in d ^? D.cellMap . ix c . tileIdLayer . upper `shouldBe`
+            Just (Just (tileFileForGeneration, upStairsIndex))
 
 testNoActorExistsOnUpStairs :: TileCollection -> Spec
 testNoActorExistsOnUpStairs tc =
     prop "does not locate an actor at the upstairs." $ \g ->
-        let (d, c) = toDungeon g
+        let (d, c) = generateDungeonAndUpStairsPosition g tc
          in not $ actorExists c (d ^. D.cellMap)
+
+generateSingleMap :: Int -> TileCollection -> CellMap
+generateSingleMap g =
+    view D.cellMap . fst . generateDungeonAndUpStairsPosition g
+
+generateDungeonAndUpStairsPosition :: Int -> TileCollection -> (Dungeon, Coord)
+generateDungeonAndUpStairsPosition g tc = (d, c)
   where
-    toDungeon g =
-        let (Node d _, c) = tree (mkStdGen g)
-         in (d, c)
-    tree g =
-        extractDungeonTreeAndAscendingStairsPosition g $
-        generateMultipleFloorsDungeon tc cfg Beaeve
-    cfg = config 1 10 (V2 3 3) (V2 10 10) tileFileForGeneration
+    (Node d _, c) = generateDungeonTreeAndUpstairsPosition g tc
 
-generateSingleMap :: TileCollection -> Config -> Int -> CellMap
-generateSingleMap tc cfg g =
-    let Node d _ = generateMap tc cfg g
-     in d
-
-generateMap :: TileCollection -> Config -> Int -> Tree CellMap
-generateMap tc cfg g = fmap (^. D.cellMap) tree
-  where
-    tree =
-        extractDungeonTree (mkStdGen g) $
-        generateMultipleFloorsDungeon tc cfg Beaeve
-
-extractDungeonTree ::
-       StdGen
-    -> StateT IndexGenerator (State StdGen) (Tree Dungeon, Coord)
-    -> Tree Dungeon
-extractDungeonTree g = fst . extractDungeonTreeAndAscendingStairsPosition g
+generateDungeonTreeAndUpstairsPosition ::
+       Int -> TileCollection -> (Tree Dungeon, Coord)
+generateDungeonTreeAndUpstairsPosition g tc =
+    extractDungeonTreeAndAscendingStairsPosition (mkStdGen g) $
+    generateMultipleFloorsDungeon tc cfg Beaeve
 
 extractDungeonTreeAndAscendingStairsPosition ::
        StdGen
@@ -83,3 +80,6 @@ extractDungeonTreeAndAscendingStairsPosition ::
     -> (Tree Dungeon, Coord)
 extractDungeonTreeAndAscendingStairsPosition g =
     flip evalState g . flip evalStateT generator
+
+cfg :: Config
+cfg = config 1 10 (V2 3 3) (V2 10 10) tileFileForGeneration

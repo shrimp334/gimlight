@@ -2,6 +2,7 @@
 
 module Gimlight.Dungeon.Generate
     ( generateMultipleFloorsDungeon
+    , upStairsIndex
     ) where
 
 import           Control.Lens                     (Ixed (ix), _2, _Just, view,
@@ -63,11 +64,9 @@ generateMultipleFloorsDungeon ::
     -> Identifier
     -> StateT IndexGenerator (State StdGen) (Tree Dungeon, Coord)
 generateMultipleFloorsDungeon ts cfg ident = do
-    (firstFloor, _) <- generateDungeon ts cfg ident
+    (firstFloor, ascendingStairsInFirstFloor) <- generateDungeon ts cfg ident
     let treeWithFirstFloor = Node {rootLabel = firstFloor, subForest = []}
         zipperWithFirstFloor = treeZipper treeWithFirstFloor
-        ascendingStairsInFirstFloor =
-            head $ stairsPositionCandidates ts firstFloor
     dungeonZipper <-
         foldlM
             (\dacc _ -> generateDungeonAndAppend dacc ts cfg ident)
@@ -249,9 +248,12 @@ placeEnemies tc before r n = foldlM foldStep before [1 .. n]
     foldStep cm _ = do
         x <- lift $ randomRST (x1 r, x2 r - 1)
         y <- lift $ randomRST (y1 r, y2 r - 1)
-        enemy <- newMonster
-        return $ fromRight cm $ flip execStateT cm $
-            locateActorAt tc enemy (V2 x y)
+        if V2 x y /= center r
+            then do
+                enemy <- newMonster
+                return $ fromRight cm $ flip execStateT cm $
+                    locateActorAt tc enemy (V2 x y)
+            else return cm
 
 placeItems :: CellMap -> TileCollection -> Room -> Int -> State StdGen CellMap
 placeItems before tc r n = foldlM foldStep before [1 .. n]
