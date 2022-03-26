@@ -31,12 +31,18 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('cabal.project.freeze') }}-${{ github.sha }}
         restore-keys: ${{ runner.os }}-${{ hashFiles('cabal.project.freeze') }}
 
+    - name: Update the PATH environment variable
+      run: echo "$HOME/.cabal/bin" >> $GITHUB_PATH
+
     - name: Install dependencies
       run: |
         sudo apt update
         sudo apt install libsdl2-dev libglew-dev moreutils
         cabal update -j
-        cabal install weeder hlint hindent stylish-haskell -j -z
+        cabal install weeder -z -j
+        cabal install hlint -z -j
+        cabal install hindent -z -j
+        cabal install stylish-haskell -z -j
 
     - name: Generate `cabal.project.local`
       run: "echo \"package * \n  ghc-options: -fwrite-ide-info\" > cabal.project.local"
@@ -57,4 +63,4 @@ jobs:
 
     - name: Check format
       run: |
-        find src tests app -name '*.hs'|xargs -I {} sh -c "cat {}|~/.cabal/bin/hindent|~/.cabal/bin/stylish-haskell|diff --color -u {} -"
+        find src tests app -name '*.hs'|xargs -I {} sh -c "cat {}|hindent|stylish-haskell|diff --color -u {} -"
