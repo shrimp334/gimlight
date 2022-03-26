@@ -27,7 +27,7 @@ electria =
         st
         talking
         "images/electria.png"
-        "images/sample_standing_picture.png"
+        "images/upper_body/electria/electria.png"
   where
     st = status (hp 1) 1 1
 
